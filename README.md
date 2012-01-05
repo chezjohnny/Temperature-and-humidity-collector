@@ -9,6 +9,8 @@ Monitoring temperature for abrocots trees.
 Infrastructure
 --------------
 
+Base architecture.
+
 Client
 ~~~~~~
 
