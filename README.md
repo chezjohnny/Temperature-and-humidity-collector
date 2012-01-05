@@ -11,15 +11,13 @@ Infrastructure
 
 Base architecture.
 
-Client
-~~~~~~
+### Client
 
 * one cheep fanless linux PC
 * onewire device with sensors
 * one 3g pre-paied card
 
-Server
-~~~~~~
+### Server
 
 * one linux pc with a web server and sql database
 * one 3g pre-paied card (for SMS alerts)
