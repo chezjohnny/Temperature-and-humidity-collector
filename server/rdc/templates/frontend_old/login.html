@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% from "_formhelpers.html" import render_field %}
+{% block title %}WebTest{% endblock %}
+{% block body %}
+<form method="post" action="">
+  <dl>
+		{{ form.hidden_tag() }}
+    {{ render_field(form.username) }}
+    {{ render_field(form.password) }}
+  </dl>
+  <p><input type=submit value=Login>
+</form>
+{% endblock %}

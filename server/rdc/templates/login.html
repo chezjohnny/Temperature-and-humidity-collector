@@ -1,0 +1,13 @@
+{% extends "mobile_layout.html" %}
+{% from "_formhelpers.html" import render_field %}
+{% block body %}
+  <form method="post" class="ui-body ui-body-a ui-corner-all">
+    <fieldset>
+        <div data-role="fieldcontain">
+  				{{ render_field(form.username) }}
+  				{{ render_field(form.password) }}
+        </div>
+        <button type="submit" data-theme="b" name="submit" value="Login">Submit</button>
+     </fieldset>
+ </form>
+{% endblock %}
