@@ -1,0 +1,33 @@
+host_name: 'ChezJohnny'
+server_address : 'http://www.exemple.com/rdc'
+modem:
+{
+  device: '/dev/ttyUSB2',
+  speed: 9600,
+  timeout: 5,
+  pin: 1234
+}
+log_dir : '/var/run/rdc'
+sensor :
+{
+    type: 'DS18S20',
+}
+interval : {
+    temperature: 1
+    info: 10
+    error: 10
+}
+email: 
+{
+   smtp: 
+   {
+        username: 'changeit@gmail.com',
+        password: 'changeit',
+        port: 587,
+        host: 'smtp.gmail.com'
+
+   }
+   add_from: 'from@gmail.com',
+   add_to: 'to@gmail.com'
+}
+

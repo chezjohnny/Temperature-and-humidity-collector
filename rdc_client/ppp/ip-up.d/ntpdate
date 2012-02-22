@@ -1,0 +1,7 @@
+#!/bin/sh
+
+#invoke ntpdate to set time from system clock
+if [ -x /usr/sbin/ntpdate-debian ]; then
+        /usr/sbin/ntpdate-debian
+        /sbin/hwclock --systohc
+fi
