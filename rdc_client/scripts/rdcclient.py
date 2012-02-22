@@ -33,6 +33,11 @@ import smtplib
 
 # local modules
 
+def info(msg):
+    now = datetime.now()
+    print "%s: %s" % (now, msg)
+    sys.stdout.flush()
+
 class Email(object):
     def __init__(self, config):
         self._user = config.email.smtp.username
@@ -142,8 +147,8 @@ if __name__ == '__main__':
     if options.daemon:
         with daemon.DaemonContext(working_directory='/',
                 pidfile=lockfile.FileLock(os.path.join(log_dir,'temperature.pid')),
-                stdout=file(os.path.join(log_dir,'temperature.log'),'w'),
-                stderr=file(os.path.join(log_dir,'temperature.err'), 'w')):
+                stdout=file(os.path.join(log_dir,'temperature.log'),'a'),
+                stderr=file(os.path.join(log_dir,'temperature.err'), 'a')):
             
             ow.init('u')
             now = datetime.now()
@@ -156,22 +161,31 @@ if __name__ == '__main__':
             errors = []
             while True:
                 try:
+                    info("Try to collect data")
                     if (datetime.now()-temperature_interval) >= last_temp :
+                        info("Try to collect temperature")
                         post_temperature(cfg)
+                        info("Temperature done")
                         last_temp = datetime.now()
                     if (datetime.now()-info_interval) >= last_info :
+                        info("Try to collect balance")
                         post_balance(cfg)
+                        info("Balance done")
+                        info("Try to collect expiration date")
                         post_expiration_date(cfg)
+                        info("Expiration done")
                         last_info = datetime.now()
                 except Exception, e:
                     date = datetime.now()
                     err_msg = "%s: %s %s\n" % (date, type(e), str(e))
                     sys.stderr.write(err_msg)
+                    sys.stderr.flush()
                     errors.append(err_msg)
                         
                     if (datetime.now()-error_interval) >= last_error :
                         email.send("Erreur de %s" % cfg.host_name, "\n".join(errors))
                         errors = []
+                info("Sleep for one minute")
                 time.sleep(60)
 
     else:

@@ -1,0 +1,5 @@
+recursive-include rdc/templates *
+recursive-include rdc/translations *
+recursive-include rdc/static *
+include rdc/*.cfg
+include rdc/*.po

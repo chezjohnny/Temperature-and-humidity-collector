@@ -262,6 +262,8 @@ class Modem3G(object):
         self._timeout = config.modem.timeout
         self._pin = config.modem.pin
         self._name = config.host_name
+        self._at_command('AT^CURC=0')
+        self._at_command('AT^U2DIAG=0')
         
     def check_pin(self):
         at_msg = self._at_command('AT+CPIN?')
