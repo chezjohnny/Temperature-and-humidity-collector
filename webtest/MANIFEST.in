@@ -1,0 +1,6 @@
+recursive-include webtest/templates *
+recursive-include webtest/translations *
+recursive-include webtest/static *
+recursive-include webtest/mobile/templates *
+include webtest/*.cfg
+include webtest/*.po

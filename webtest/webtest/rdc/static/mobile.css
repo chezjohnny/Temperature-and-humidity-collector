@@ -1,0 +1,62 @@
+
+#data-plot {
+  width: 100%;
+  height: 200px;
+}
+
+body {
+  min-height: 100%;
+}
+#data-menu {
+  text-align: center;
+}
+#home-menu {
+}
+
+ul.flash {
+  list-style-type: none;
+  border: 1px solid #CCCCCC;
+  color: red;
+  font-size: 1.2em;
+  padding: 4px;
+} 
+li.flash-info {
+  color: blue;
+}
+li.flash-error {
+  color: red;
+}
+li.flash-warning {
+  color: orange;
+}
+ul#lang {
+  text-align: right;
+  list-style: none;
+  float: right;
+}
+#lang li {
+  float: right;
+}
+#lang li a {
+  padding: 4px;
+}
+.selected-lang {
+  color: orange;
+}
+
+.warning {
+	background: none;
+	background-color: yellow;
+}
+.critical {
+	background: none;
+	background-color: red;
+}
+.enable {
+	background: none;
+	background-color: blue;
+}
+.disable {
+	background: none;
+	background-color: gray;
+}

@@ -1,0 +1,225 @@
+/* --- STYLES RESET --- */
+
+/* Page */
+html {
+	font-size: 100%; /* Évite un bug d'IE 6-7. (1) */
+}
+body {
+	padding: 1em; /* Remettre à zéro si nécessaire. */
+	/* Pensez à utiliser une collection de polices (2), par ex:
+	font-family: Arial, Helvetica, FreeSans, sans-serif; */
+  font-size: .9em; /* À adapter pour la police choisie. (3) */
+  line-height: 1.4; /* À adapter au design. (4) */
+  color: black;
+  background: white;
+	width: 960px;
+	margin: auto;
+}
+
+/* Titres */
+h1, h2, h3, h4, h5, h6 {
+	margin: 1em 0 .5em 0; /* Rapproche le titre du texte. (5) */
+	line-height: 1.2;
+	font-weight: bold; /* Valeur par défaut. (6) */
+	font-style: normal;
+}
+
+h1 {
+	font-size: 1.75em;
+}
+
+h2 {
+	font-size: 1.5em;
+}
+
+h3 {
+	font-size: 1.25em;
+}
+
+h4 {
+	font-size: 1em;
+}
+
+/* Listes */
+ul, ol {
+	margin: .75em 0 .75em 32px;
+	padding: 0;
+}
+
+/* Paragraphes */
+p {
+	margin: .75em 0; /* Marges plus faibles que par défaut. (7) */
+}
+address {
+	margin: .75em 0;
+	font-style: normal;
+}
+
+/* Liens */
+a {
+	text-decoration: underline;
+}
+a:link {
+	color: #11C;
+}
+a:visited {
+	color: #339;
+}
+a:hover, a:focus, a:active {
+	color: #00F;
+}
+
+/* Pas de bordure autour des images dans les liens */
+a img {
+	border: none;
+}
+
+/* Divers éléments de type en-ligne (8) */
+em {
+	font-style: italic;
+}
+strong {
+	font-weight: bold;
+}
+
+/* Formulaires */
+form, fieldset {
+	margin: 0;
+	padding: 0;
+	border: none;
+}
+
+input, button, select {
+	vertical-align: middle; /* Solution pb. d'alignement. (9) */
+}
+
+/* --- STYLES DE BASE --- */
+a:link, a:visited {
+	text-decoration: none;
+	color: black;
+}
+a:hover {
+	text-decoration: underline;
+}
+html {
+	background: white;
+}
+#header h1 {
+    font-family: sans-serif;
+    font-size: 10em;
+    height: 150px;
+    line-height: 150px;
+    margin: 0;
+    padding: 0 0 10px;
+    text-align: center;
+    vertical-align: middle;
+}
+#header img {
+	float: left;
+}
+#header {
+	background-color: white;
+	padding-top: 20px;
+}
+
+#menu {
+	border: 1px solid #ccc;
+	background-color: white;
+	box-shadow: 2px 2px 2px #ccc;
+	border-radius: 4px;
+	height: 40px;
+	line-height: 40px;
+	margin: 0 auto;
+	width: 960px;
+	text-align: center;
+}
+
+#menu ul {
+	list-style-type: none;
+	/*background-image: url(navi_bg.png);*/
+	height: 40px;
+	width: 960px;
+	margin: auto;
+}
+
+#menu li {
+	float: left;
+}
+
+#menu li a {
+	/*background-image: url(navi_bg_divider.png);
+	background-repeat: no-repeat;
+	background-position: right;*/
+	padding-right: 32px;
+	padding-left: 32px;
+	display: block;
+	line-height: 40px;
+	text-decoration: none;
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 21px;
+	color: #371C1C;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	color: gray;
+}
+
+#menu li a:hover {
+	background: #ccc -moz-linear-gradient(top, #000, #999);
+	/* chrome, safari:*/
+	background: #ccc -webkit-gradient(linear, left top, left bottom, from(#000), to(#999));
+	color: white;
+}
+
+#main-page {
+	padding: 10px;
+	width: 940px;
+	margin: 0px auto;
+	min-height: 400px;
+}
+
+ul.errors {
+	color: red;
+}
+
+#footer {
+	background-color: #999;
+color: white;
+	padding: 10px;
+	text-align: right;
+	font-family: sans-serif;
+	font-size: 0.6em;
+	width: 940px;
+	margin: 0px auto;
+	margin-top: 20px;
+}
+ul.flash {
+	list-style-type: none;
+	border: 1px solid #CCCCCC;
+	color: red;
+	font-size: 1.2em;
+	padding: 4px;
+}	
+li.flash-info {
+	color: blue;
+}
+li.flash-error {
+	color: red;
+}
+li.flash-warning {
+	color: orange;
+}
+ul#lang {
+	text-align: right;
+	list-style: none;
+	float: right;
+}
+#lang li {
+	float: right;
+}
+#lang li a {
+	padding: 4px;
+}
+.selected-lang {
+	color: orange;
+}

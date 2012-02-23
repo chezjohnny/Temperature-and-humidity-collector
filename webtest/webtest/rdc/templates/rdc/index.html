@@ -1,0 +1,9 @@
+{% extends "rdc/mobile_layout.html" %}
+{% from "rdc/_hostinfohelpers.html" import render_info %}
+{% block body %}
+  <ul data-role="listview">
+		{% for info in host_informations %}
+  	 {{ render_info(info) }}
+		{% endfor %}
+  </ul>
+{% endblock %}

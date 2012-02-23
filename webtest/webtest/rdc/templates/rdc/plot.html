@@ -1,0 +1,28 @@
+{% extends "rdc/mobile_layout.html" %}
+
+{% block header %}
+      <div data-role="header">
+        <a href={{ url_for('rdc.index') }} data-transition="fade" data-role="button" data-icon="back" data-iconpos="notext"></a>
+				<h1>Températures: {{ host_name }}</h1>
+				<a href={{ request.path }} id="refresh" data-role="button" data-icon="refresh" data-iconpos="notext"></a>
+        <div data-role="navbar">
+          <ul>
+            <li><a href="#" id="day" class="ui-btn-active">Jour</a></li>
+            <li><a href="#" id="week">Semaine</a></li>
+            <li><a href="#" id="month">Mois</a></li>
+          </ul>
+        </div>
+      </div><!-- /header -->
+
+{% endblock %}
+
+{% block body %}
+<script>
+	period = 'day';
+	host_id = {{ host_id }};
+	sensor_type = 'TEMPERATURE';
+</script>
+        <div data-role="content">       
+            <div id="data-plot"></div>
+        </div><!-- /content -->
+{% endblock %}

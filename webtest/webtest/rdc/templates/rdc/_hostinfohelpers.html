@@ -1,0 +1,9 @@
+{% macro render_info(info) %}
+<li class={{ info.state}} data-role="list-divider">{{ info.date }}<span class=ui-li-count>{{ info.temperature }}</span></li>
+<li><a href={{ url_for('rdc.plot', host_id=info.id) }}>
+    <h3>{{ info.name }}</h3>
+    <p><strong>Etat:</strong>{{ info.state }}</p>
+    <p><strong>Solde:</strong>{{ info.balance }} <strong>Expiration:</strong>{{ info.expiration }}</p>
+    <p class="ui-li-aside"><strong>{{ info.time }}</strong></p>
+</a></li>
+{% endmacro %}

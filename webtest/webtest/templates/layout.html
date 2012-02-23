@@ -1,0 +1,56 @@
+<!doctype html>
+<head>
+	<title>WebTest</title>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}?20120220">
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
+	<script>window.jQuery || document.write('<script src="{{
+			url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
+		<script src="{{ url_for('static', filename='js/webtest.js') }}"></script>
+	</head>
+
+	<body>
+		<div id='header'>
+			<img src="{{ url_for('static', filename='img/logo_example.png') }}"/>
+			<h1>WebTest</h1>
+			<ul id='lang'>
+				{% if not g.lang_code or g.lang_code == 'en' %}
+				<li><a href="{{ url_for('frontend.set_language', lang='fr', next=request.url) }}">fr</a></li>
+				{% else %}
+				<li><a href="{{ url_for('frontend.set_language', lang='en', next=request.url) }}">en</a></li>
+				{% endif %}
+			</ul>
+
+			<div id='menu'>
+				<ul>
+					<li><a href="{{ url_for('frontend.index') }}">Home</a></li>
+					{% if not session.user_id %}
+					<li><a href={{ url_for('frontend.login') }}>Login</a></li>
+					<li><a href={{ url_for('frontend.register') }}>Register</a></li>
+					{% else %}
+					<li><a href={{ url_for('frontend.logout') }}>Logout</a></li>
+					<li><a href={{ url_for('frontend.admin') }}>Admin</a></li>
+					{% endif %}
+				</ul>
+			</div>
+		</div>
+
+		<div class=page id="main-page">
+			{% with messages = get_flashed_messages(with_categories=True) %}
+			{% if messages %}
+			<ul class=flash>
+				{% for category, message in messages %}
+				<li class=flash-{{ category }}>{{ message }}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
+			{% endwith %}
+			{% block body %}{% endblock %}
+		</div>
+
+		<div id='footer'>
+			<a class="mobile-link" href={{ url_for('mobile.index') }}>Mobile</a>
+			<p class="copyright">Copyright © 2011 Johnny Mariéthoz. Tous droits réservés.</p>
+		</div>
+	</body>
+</html>
