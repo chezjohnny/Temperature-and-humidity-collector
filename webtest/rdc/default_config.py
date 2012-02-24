@@ -6,4 +6,3 @@ class Config(object):
     PASSWORD = "toto"
     SECRET_KEY = 'change it'
     SUPPORTED_LANG = ['en','fr']
-    BABEL_DEFAULT_LOCALE = 'en'

@@ -5,18 +5,17 @@ from flask import Blueprint, g
 from ..tools import templated, get_best_language, get_user
 from flask import render_template, request, flash, redirect, url_for, session, g, abort, current_app, jsonify
 from flaskext.login import login_user, login_required, logout_user, AnonymousUser
-from flaskext.babel import gettext as _, refresh,  lazy_gettext as __
 import hashlib
 from ..models import DataCollector
 from .. import forms
 import datetime
 
-rdc = Blueprint('rdc', __name__, url_prefix='/rdc',
+mobile = Blueprint('mobile', __name__, url_prefix='/mobile',
         template_folder='templates', static_folder='static')
 
 
 #---------- Routes ------------
-@rdc.route("/login", methods=["GET", "POST"])
+@mobile.route("/login", methods=["GET", "POST"])
 @templated()
 def login():
     print "Login"
@@ -31,22 +30,26 @@ def login():
             return dict(form=form)
         login_user(user)
         flash("Logged in successfully.", "info")
-        return redirect(url_for("rdc.configuration"))
+        return redirect(url_for("mobile.configuration"))
     return dict(form=form)
 
-@rdc.route('/logout')
+@mobile.route('/logout')
 def logout():
     flash('You were logged out', "warning")
     logout_user()
-    return redirect(request.args.get("next") or url_for('rdc.index'))
+    return redirect(request.args.get("next") or url_for('mobile.index'))
 
-@rdc.route('/configuration', methods=["GET", "POST"])
+@mobile.route('/configuration', methods=["GET", "POST"])
 @login_required
-@templated("rdc/index.html")
+@templated("mobile/index.html")
 def configuration():
     return dict(title="Configuration", page_id="conf-page", msg="Config")
 
-@rdc.route('/data/<host_id>/<sensor_type>/<period>')
+@mobile.route('/data/', defaults={'host_id':
+'1', 'sensor_type':'TEMPERATURE', 'period':'day'})
+@mobile.route('/data/<host_id>/', defaults={'sensor_type':'TEMPERATURE', 'period':'day'})
+@mobile.route('/data/<host_id>/<sensor_type>/',defaults={'period':'day'})
+@mobile.route('/data/<host_id>/<sensor_type>/<period>')
 def get_temperature_data(host_id, sensor_type, period):
     dc = DataCollector.query.filter(DataCollector.id == host_id).first()
     now = datetime.datetime.now()
@@ -64,29 +67,29 @@ def get_temperature_data(host_id, sensor_type, period):
 
 
 
-@rdc.route('/plot/<int:host_id>')
+@mobile.route('/plot/<int:host_id>')
 @templated()
 def plot(host_id):
     dc = DataCollector.query.filter(DataCollector.id == host_id).first()
     return dict(page_id='dataPage', host_id=host_id, host_name=dc.host_name)
 
-@rdc.route('/')
+@mobile.route('/')
 @templated()
 def index():
     infos = []
     for dc in DataCollector.query.all():
         infos.append(dc.get_info())
 
-    return dict(title="RDC", page_id="main-page", host_informations=infos)
+    return dict(title="mobile", page_id="main-page", host_informations=infos)
 
-@rdc.route('/admin')
-@templated('rdc/index.html')
+@mobile.route('/admin')
+@templated('mobile/index.html')
 @login_required
 def admin():
     return dict(title="Admin area", msg="You are on a protected page!")
 
 
-#@rdc.route('/lang/<lang>')
+#@mobile.route('/lang/<lang>')
 #def set_language(lang):
 #    if lang in ['en', 'fr']:
 #        session['lang'] = lang
@@ -103,6 +106,6 @@ def admin():
 #    return dict(form=form)
 
 
-@rdc.errorhandler(404)
+@mobile.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404

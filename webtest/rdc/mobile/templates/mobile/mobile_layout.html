@@ -7,20 +7,20 @@
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.css" />
     <script src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
     <script src="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.js"></script>
-		<script src="{{ url_for('rdc.static', filename='js/jquery.flot.js') }}"></script>
-		<script src="{{ url_for('rdc.static', filename='js/jquery.flot.threshold.multiple.js') }}"></script>
-		<script src="{{ url_for('rdc.static', filename='js/temperature.js') }}"></script>
+		<script src="{{ url_for('mobile.static', filename='js/jquery.flot.js') }}"></script>
+		<script src="{{ url_for('mobile.static', filename='js/jquery.flot.threshold.multiple.js') }}"></script>
+		<script src="{{ url_for('mobile.static', filename='js/temperature.js') }}"></script>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<link rel=stylesheet type=text/css href="{{ url_for('rdc.static', filename='mobile.css') }}?20120220">
+		<link rel=stylesheet type=text/css href="{{ url_for('mobile.static', filename='mobile.css') }}?20120220">
 </head>
 
 <body>
   <div data-role="page" id={{ page_id }}>
 {% block header %}
       <div data-role="header">
-        <a href={{ url_for('rdc.configuration') }} data-transition="flip" data-role="button" data-icon="gear" data-iconpos="notext"></a>
+        <a href={{ url_for('mobile.configuration') }} data-transition="flip" data-role="button" data-icon="gear" data-iconpos="notext"></a>
         <h1>{{ title }}</h1>
-				<a href={{ request.path }} id="refresh" data-role="button" data-icon="refresh" data-iconpos="notext"></a>
+				<a href={{ request.script_root + request.path }} id="refresh" data-role="button" data-icon="refresh" data-iconpos="notext"></a>
       </div><!-- /header -->
 {% endblock %}
 

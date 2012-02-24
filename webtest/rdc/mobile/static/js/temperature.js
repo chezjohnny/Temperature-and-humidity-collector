@@ -27,6 +27,7 @@ var plot_data = [];
 var period = 'day';
 var host_id = '1';
 var sensor_type = 'TEMPERATURE';
+var data_url = null;
 //$.mobile.page.prototype.options.domCache = false;
 //$.mobile.page.prototype.options.addBackBtn = true;
 //
@@ -53,7 +54,7 @@ function update_series() {
   $('#data-plot').hide();
   $.mobile.showPageLoadingMsg();
   $.ajax({
-    url: '/rdc/data/' + host_id + '/TEMPERATURE/' + period,
+    url: data_url + host_id + '/TEMPERATURE/' + period,
     method: 'GET',
     dataType: 'json',
     success: onDataReceived
@@ -62,11 +63,11 @@ function update_series() {
 
 $(document).delegate('#refresh', 'click', function () {
   var $this = $(this);
-  //alert($this.attr('href'));
-  $.mobile.changePage( $this.attr('href'), {reloadPage: true},{ allowSamePageTranstion: true},{ transition: 'none'});
-  update_series();
-  //$('#dataPage').remove();
-  //$('[data-url="' + $this.attr('href') + '"]').remove();
+//  alert($this.attr('href'));
+  $.mobile.changePage($this.attr('href'), {reloadPage: true}, { allowSamePageTranstion: true}, {transition: 'none'});
+  //update_series();
+//  //$('#dataPage').remove();
+//  //$('[data-url="' + $this.attr('href') + '"]').remove();
 });
 $(document).delegate("#dataPage", "pagecreate", function () {
 
@@ -97,3 +98,6 @@ $(document).delegate("#dataPage", "pagecreate", function () {
   });
 });
 
+$(function () {
+  $('.flash').delay(3000).hide(1000);
+});

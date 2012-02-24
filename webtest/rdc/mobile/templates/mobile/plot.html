@@ -1,10 +1,10 @@
-{% extends "rdc/mobile_layout.html" %}
+{% extends "mobile/mobile_layout.html" %}
 
 {% block header %}
       <div data-role="header">
-        <a href={{ url_for('rdc.index') }} data-transition="fade" data-role="button" data-icon="back" data-iconpos="notext"></a>
+        <a href={{ url_for('mobile.index') }} data-transition="fade" data-role="button" data-icon="back" data-iconpos="notext"></a>
 				<h1>Températures: {{ host_name }}</h1>
-				<a href={{ request.path }} id="refresh" data-role="button" data-icon="refresh" data-iconpos="notext"></a>
+				<a href={{ request.script_root + request.path }} id="refresh" data-role="button" data-icon="refresh" data-iconpos="notext"></a>
         <div data-role="navbar">
           <ul>
             <li><a href="#" id="day" class="ui-btn-active">Jour</a></li>
@@ -19,8 +19,9 @@
 {% block body %}
 <script>
 	period = 'day';
-	host_id = {{ host_id }};
+	host_id = "{{ host_id }}";
 	sensor_type = 'TEMPERATURE';
+	data_url = "{{ url_for('mobile.get_temperature_data') }}";
 </script>
         <div data-role="content">       
             <div id="data-plot"></div>

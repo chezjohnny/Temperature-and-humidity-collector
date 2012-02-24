@@ -1,6 +1,6 @@
-recursive-include webtest/templates *
-recursive-include webtest/translations *
-recursive-include webtest/static *
-recursive-include webtest/mobile/templates *
-include webtest/*.cfg
-include webtest/*.po
+recursive-include rdc/templates *
+recursive-include rdc/static *
+recursive-include rdc/mobile/templates *
+recursive-include rdc/mobile/static *
+include rdc/*.cfg
+include rdc/*.po

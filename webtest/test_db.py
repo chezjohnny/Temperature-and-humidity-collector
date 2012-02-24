@@ -43,8 +43,8 @@ def create(name, state, types=['TEMPERATURE', 'BALANCE', 'EXPIRATION'],
         dc.data.append(s)
         dc.last_sensor_value = value
         dc.last_sensor_type = sensor_type
-    webtest.db.session.add(dc)
-    webtest.db.session.commit()
+    rdc.db.session.add(dc)
+    rdc.db.session.commit()
 #---------------------------- Main Part ---------------------------------------
 
 if __name__ == '__main__':
@@ -67,15 +67,15 @@ if __name__ == '__main__':
     if len(args) != 0:
         parser.error("Error: incorrect number of arguments, try --help")
 
-    import webtest
-    app = webtest.create_app()
+    import rdc
+    app = rdc.create_app()
     app.test_request_context().push()
 
     import datetime
-    from webtest.models import DataSensors
-    from webtest.models import DataCollector
-    webtest.db.drop_all()
-    webtest.db.create_all()
+    from rdc.models import DataSensors
+    from rdc.models import DataCollector
+    rdc.db.drop_all()
+    rdc.db.create_all()
     create('localhost','DISABLE')
     create('ChezJohnny','ENABLE')
     create('ChezArnold','WARNING')

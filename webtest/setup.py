@@ -10,7 +10,7 @@ __license__ = "Internal Use Only"
 from setuptools import setup, find_packages
 
 setup(
-    name='WebTest',
+    name='RDC',
     version='1.0',
     long_description=__doc__,
     packages=find_packages(),
@@ -21,7 +21,6 @@ setup(
     'SQLAlchemy>=0.6',
     'Flask-Login>=0.1',
     'Flask-WTF>=0.5',
-    'Flask-Babel>=0.8',
     'Flask-XML-RPC>=0.1.2'
     ]
 )

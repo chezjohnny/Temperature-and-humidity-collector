@@ -15,8 +15,8 @@ import os
 from optparse import OptionParser
 
 # third party modules
-from webtest import create_app
-from webtest import default_config
+from rdc import create_app
+from rdc import default_config
 
 # local modules
 
