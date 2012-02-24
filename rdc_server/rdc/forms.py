@@ -3,6 +3,7 @@
 
 from flaskext.wtf import Form, BooleanField, TextField, PasswordField, validators
 
+#----------- Registration ---------------------
 class RegistrationForm(Form):
     username = TextField('Username', [validators.Length(min=4, max=25)])
     email = TextField('Email Address', [validators.Length(min=6, max=35)])
@@ -14,6 +15,7 @@ class RegistrationForm(Form):
     def __init__(self, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)
 
+#----------- Login ---------------------
 class LoginForm(Form):
     username = TextField('Username', [validators.Length(min=4, max=25)])
     password = PasswordField('New Password', [

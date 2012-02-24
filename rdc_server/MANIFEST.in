@@ -1,5 +1,6 @@
 recursive-include rdc/templates *
-recursive-include rdc/translations *
 recursive-include rdc/static *
+recursive-include rdc/mobile/templates *
+recursive-include rdc/mobile/static *
 include rdc/*.cfg
 include rdc/*.po

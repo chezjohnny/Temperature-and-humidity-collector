@@ -1,22 +1,41 @@
-from flask import Flask
+from flask import Flask, g, redirect, url_for
 from flaskext.login import LoginManager
 
-from flaskext.sqlalchemy import SQLAlchemy
-import rdc.default_config
-import os
-#tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
-#app = Flask(__name__, template_dir=tmpl_dir)
-app = Flask(__name__)
-
-app.config.from_object(default_config.Config)
-app.config.from_envvar('rdc_SETTINGS', silent=True)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
-db = SQLAlchemy(app)
+import default_config
+from tools import ConfigUser, get_best_language
+from rpc import rpc_handler
+from models import db
 
 login_manager = LoginManager()
-login_manager.setup_app(app)
-login_manager.login_view = "login"
 
-import rdc.views
-#import rdc.frontend
+@login_manager.user_loader
+def load_user(userid):
+    user = ConfigUser()
+    return user
+
+def create_app():
+    from mobile import mobile
+    app = Flask(__name__)
+    
+    app.config.from_object(default_config.Config)
+    app.config.from_envvar('RDC_SETTINGS', silent=True)
+    
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+    rpc_handler.connect(app, '/api')
+
+#-------- Login -------------
+   
+    app.register_blueprint(mobile, url_prefix='/mobile')
+    login_manager.setup_app(app)
+    login_manager.login_view = "mobile.login"
+    
+    db.init_app(app)
+    return app
+
+
+
+
+
+#@app.route('/')
+#def redirect_language():
+#    return redirect(url_for('frontend.index'))

@@ -1,18 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__author__ = "Johnny Mariethoz <Johnny.Mariethoz@rero.ch>"
-__version__ = "0.0.0"
-__copyright__ = "Copyright (c) 2012 Rero, Johnny Mariethoz"
-__license__ = "Internal Use Only"
-
-from functools import wraps
-from flask import request
+from flask import request, current_app
 from flask import render_template, g
 from flaskext.login import UserMixin
-from rdc import login_manager, app
 import hashlib
+from functools import wraps
 
+#-------- Template decorator ----------------
 def templated(template=None):
     def decorator(f):
         @wraps(f)
@@ -30,12 +25,26 @@ def templated(template=None):
         return decorated_function
     return decorator
 
+#-------- Login ----------------
 class ConfigUser(UserMixin):
     def __init__(self):
-        self.id = hashlib.md5('%s.%s' % (app.config.get('USERNAME'),
-                    app.config.get('PASSWORD'))).hexdigest()
+        self.id = hashlib.md5('%s.%s' % (current_app.config.get('USERNAME'),
+                    current_app.config.get('PASSWORD'))).hexdigest()
 
-@login_manager.user_loader
-def load_user(userid):
-    user = ConfigUser()
-    return user
+def get_user(user_name, password):
+    current_user = ConfigUser()
+    current_hash = hashlib.md5('%s.%s' % (user_name, password))
+    if current_user.get_id() == current_hash.hexdigest():
+        return ConfigUser()
+    else:
+        return None
+
+#------ Translations ------------
+def get_best_language(lang=None):
+    if lang:
+        if lang in current_app.config.get('SUPPORTED_LANG'):
+            return lang
+        return None
+    return request.accept_languages.best_match(current_app.config.get('SUPPORTED_LANG'))
+
+

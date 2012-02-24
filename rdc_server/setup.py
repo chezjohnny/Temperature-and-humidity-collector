@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" RDC Remote Data Collector."""
+""" WebTest to test Flask."""
 __author__ = "Johnny Mariethoz <Johnny.Mariethoz@rero.ch>"
 __version__ = "0.0.0"
 __copyright__ = "Copyright (c) 2012 Rero, Johnny Mariethoz"
@@ -21,6 +21,6 @@ setup(
     'SQLAlchemy>=0.6',
     'Flask-Login>=0.1',
     'Flask-WTF>=0.5',
-    'Flask-Babel>=0.8'
+    'Flask-XML-RPC>=0.1.2'
     ]
 )

@@ -15,7 +15,7 @@ import os
 from optparse import OptionParser
 
 # third party modules
-from rdc import app
+from rdc import create_app
 from rdc import default_config
 
 # local modules
@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     if len(args) != 0:
         parser.error("Error: incorrect number of arguments, try --help")
-
+    app = create_app()
     app.secret_key = app.config.get('SECRET_KEY')
-    app.run(host='0.0.0.0', debug=True)
+    app.run(debug=True)
 
