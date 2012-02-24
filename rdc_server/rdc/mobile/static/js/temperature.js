@@ -2,7 +2,8 @@ $(document).bind("mobileinit", function () {
 
     // Navigation
     //$.mobile.page.prototype.options.backBtnText = "Go back";
-  $.mobile.page.prototype.options.addBackBtn      = true;
+    $.mobile.page.prototype.options.addBackBtn = true;
+    $.mobile.page.prototype.options.defaultPageTransition = 'fade';
      //$.mobile.selectmenu.prototype.options.nativeMenu = false;
      //$.mobile.selectmenu.prototype.options.hidePlaceholderMenuItems = false;
     //$.mobile.page.prototype.options.backBtnTheme    = "d";
