@@ -6,12 +6,12 @@ from flaskext.sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 class DataSensors(db.Model):
-    __tablename__ = 'collected_data'
+    __tablename__ = 'rdc_collected_data'
     id = db.Column(db.Integer, primary_key=True)
     date_statement =  db.Column(db.DateTime())
     sensor_value =  db.Column(db.String(50))
     sensor_type =  db.Column(db.String(50))
-    collector_id = db.Column(db.Integer, db.ForeignKey('data_collector.id'))
+    collector_id = db.Column(db.Integer, db.ForeignKey('rdc_data_collector.id'))
     def __init__(self, date_statement, sensor_value, sensor_type):
         self.date_statement = date_statement
         self.sensor_value = sensor_value
@@ -21,7 +21,7 @@ class DataSensors(db.Model):
                 self.sensor_value, self.sensor_type, self.collector_id)
 
 class DataCollector(db.Model):
-    __tablename__ = 'data_collector'
+    __tablename__ = 'rdc_data_collector'
     id = db.Column(db.Integer, primary_key=True)
     host_name =  db.Column(db.String(50))
     state =  db.Column(db.String(50))

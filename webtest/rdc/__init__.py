@@ -18,14 +18,14 @@ def create_app():
     app = Flask(__name__)
     
     app.config.from_object(default_config.Config)
-    app.config.from_envvar('WEBTEST_SETTINGS', silent=True)
+    app.config.from_envvar('RDC_SETTINGS', silent=True)
     
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
-    rpc_handler.connect(app, '/rpc/api')
+    rpc_handler.connect(app, '/api')
 
 #-------- Login -------------
    
-    app.register_blueprint(mobile, url_prefix='/rdc')
+    app.register_blueprint(mobile, url_prefix='/mobile')
     login_manager.setup_app(app)
     login_manager.login_view = "mobile.login"
     
