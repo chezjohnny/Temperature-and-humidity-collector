@@ -18,7 +18,7 @@
   <div data-role="page" id={{ page_id }}>
 {% block header %}
       <div data-role="header">
-        <a href={{ url_for('mobile.configuration') }} data-transition="flip" data-role="button" data-icon="gear" data-iconpos="notext"></a>
+        <a data-ajax="false" href={{ url_for('mobile.configuration') }} data-transition="flip" data-role="button" data-icon="gear" data-iconpos="notext"></a>
         <h1>{{ title }}</h1>
 				<a href={{ request.script_root + request.path }} id="refresh" data-role="button" data-icon="refresh" data-iconpos="notext"></a>
       </div><!-- /header -->

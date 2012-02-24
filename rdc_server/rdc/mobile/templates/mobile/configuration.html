@@ -1,0 +1,21 @@
+{% extends "mobile/mobile_layout.html" %}
+
+{% block header %}
+      <div data-role="header">
+        <a href={{ url_for('mobile.index') }} data-transition="fade" data-role="button" data-icon="home" data-iconpos="notext"></a>
+				<h1>Configuration</h1>
+				<a href={{ url_for('mobile.logout') }}  data-role="button" data-icon="gear" data-iconpos="notext"></a>
+      </div><!-- /header -->
+
+{% endblock %}
+
+{% block body %}
+  <ul data-role="listview">
+    {% for info in hosts %}
+    <li class={{ info.state.lower()}}><a href={{ url_for('mobile.configuration', host_id=info.id) }}>
+    <h3>{{ info.host_name }}</h3>
+    <p><strong>Etat:</strong>{{ info.state }}</p>
+    </a></li>
+    {% endfor %}
+</ul>
+{% endblock %}

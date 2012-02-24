@@ -21,6 +21,7 @@ setup(
     'SQLAlchemy>=0.6',
     'Flask-Login>=0.1',
     'Flask-WTF>=0.5',
-    'Flask-XML-RPC>=0.1.2'
+    'Flask-XML-RPC>=0.1.2',
+    'Flask-SQLAlchemy>=0.15'
     ]
 )

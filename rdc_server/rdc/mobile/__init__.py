@@ -9,6 +9,7 @@ import hashlib
 from ..models import DataCollector
 from .. import forms
 import datetime
+from rdc import db
 
 mobile = Blueprint('mobile', __name__, url_prefix='/mobile',
         template_folder='templates', static_folder='static')
@@ -39,11 +40,38 @@ def logout():
     logout_user()
     return redirect(request.args.get("next") or url_for('mobile.index'))
 
-@mobile.route('/configuration', methods=["GET", "POST"])
+@mobile.route('/configuration/', defaults={'host_id' : None}, methods=["GET", "POST"])
+@mobile.route('/configuration/<int:host_id>', methods=["GET", "POST"])
 @login_required
-@templated("mobile/index.html")
-def configuration():
-    return dict(title="Configuration", page_id="conf-page", msg="Config")
+@templated()
+def configuration(host_id):
+    hosts = []
+    if not host_id:
+        hosts = DataCollector.query.all()
+        return dict(title="Configuration", page_id="conf-page", hosts=hosts)
+    else:
+        form = forms.ConfigurationForm(csrf_enabled=False)
+        dc = DataCollector.query.filter(DataCollector.id == host_id).first()
+        if request.method == 'POST' and form.validate_on_submit():
+            dc.alert_critical_value = form.alert_critical_value.data
+            dc.alert_warning_value = form.alert_warning_value.data
+            dc.notifiers = form.notifiers.data
+            if form.enabled.data and dc.state == 'DISABLE':
+                dc.state = 'ENABLE'
+            if not form.enabled.data and dc.state != 'DISABLE':
+                dc.state = 'ENABLE'
+            db.session.merge(dc)
+            db.session.commit()
+            return redirect(url_for("mobile.configuration"))
+        else:
+            form.alert_critical_value.data = dc.alert_critical_value
+            form.alert_warning_value.data = dc.alert_warning_value
+            form.notifiers.data = dc.notifiers
+            if dc.state == 'DISABLE':
+                form.enabled.data = False
+            else:
+                form.enabled.data = True
+            return render_template('mobile/configuration_forms.html', form=form, host_name=dc.host_name)
 
 @mobile.route('/data/', defaults={'host_id':
 '1', 'sensor_type':'TEMPERATURE', 'period':'day'})

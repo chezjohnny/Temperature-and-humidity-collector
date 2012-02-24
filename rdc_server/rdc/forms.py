@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flaskext.wtf import Form, BooleanField, TextField, PasswordField, validators
+from flaskext.wtf import Form, BooleanField, TextField, PasswordField, validators, DecimalField
 
 #----------- Registration ---------------------
-class RegistrationForm(Form):
-    username = TextField('Username', [validators.Length(min=4, max=25)])
-    email = TextField('Email Address', [validators.Length(min=6, max=35)])
-    password = PasswordField('New Password', [
-        validators.Required(),
-        validators.EqualTo('confirm', message='Passwords must match')
-    ])
-    confirm = PasswordField('Repeat Password')
+class ConfigurationForm(Form):
+
+    enabled = BooleanField('Actif')
+    alert_warning_value = DecimalField('Alerte',
+            [validators.NumberRange(min=-10, max=10, message="La valeur doit etre entre -10 et 10")])
+    alert_critical_value = DecimalField('Alerte Critique',
+            [validators.NumberRange(min=-10, max=10, message="La valeur doit etre entre -10 et 10")])
+    notifiers = TextField('Notifications')
     def __init__(self, *args, **kwargs):
-        super(RegistrationForm, self).__init__(*args, **kwargs)
+        super(ConfigurationForm, self).__init__(*args, **kwargs)
 
 #----------- Login ---------------------
 class LoginForm(Form):
