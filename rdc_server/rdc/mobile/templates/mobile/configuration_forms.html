@@ -1,0 +1,24 @@
+{% extends "mobile/mobile_layout.html" %}
+{% from "mobile/_formhelpers.html" import render_field %}
+
+{% block header %}
+      <div data-role="header">
+        <a href={{ url_for('mobile.configuration') }} data-transition="fade" data-role="button" data-icon="back" data-iconpos="notext"></a>
+				<h1>{{host_name}}</h1>
+      </div><!-- /header -->
+
+{% endblock %}
+
+{% block body %}
+  <form method="post" class="ui-body ui-body-a ui-corner-all">
+    <fieldset>
+        <div data-role="fieldcontain">
+            {{ render_field(form.enabled) }}
+            {{ render_field(form.alert_warning_value) }}
+            {{ render_field(form.alert_critical_value) }}
+            {{ render_field(form.notifiers) }}
+        </div>
+        <button type="submit" data-theme="b" name="submit" value="Change">Submit</button>
+     </fieldset>
+ </form>
+{% endblock %}

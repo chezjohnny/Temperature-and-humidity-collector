@@ -106,7 +106,7 @@ def post_data(host_name, server_address, sensor_value, sensor_type):
     server = xmlrpclib.ServerProxy(server_address)
     now = datetime.now().isoformat()
     info("Posting data: %s" % host_name)
-    print server.add_data(host_name, now, sensor_value, sensor_type)
+    server.add_data(host_name, now, sensor_value, sensor_type)
 
 #---------------------------- Main Part ---------------------------------------
 
