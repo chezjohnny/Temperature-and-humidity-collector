@@ -13,7 +13,6 @@ __license__ = "Internal Use Only"
 import sys
 import os
 from optparse import OptionParser
-import urllib2
 import json
 import datetime
 import daemon
@@ -25,8 +24,10 @@ import datetime
 from datetime import datetime
 from datetime import timedelta
 
+import subprocess
 import ow
 import smtplib
+import xmlrpclib
 
 # third party modules
 
@@ -66,22 +67,24 @@ class TemperatureSensor(object):
         to_return = None
         for sensor in root.find(type=self._sensor_type):
             to_return = float(sensor.temperature)
-        #ow.finish()
         return to_return
     def close(self):
         pass
-        #ow.finish()
 
-def http_post(host, data):
-    data_json = json.dumps(data)
-    req = urllib2.Request(host, data_json, {'content-type': 'application/json'})
-    response_stream = urllib2.urlopen(req)
-    response = response_stream.read()
-    return response
 
 def post_temperature(config):
     temp = TemperatureSensor(sensor_type=config.sensor.type)
-    temp_value = temp.temperature()
+    try:
+        temp_value = temp.temperature()
+    except:
+        ow.init('u')
+        info("Try to re-init")
+        date = datetime.now()
+        err_msg = "%s: %s %s\n" % (date, type(e), str(e))
+        sys.stderr.write(err_msg)
+        sys.stderr.flush()
+        temp_value = temp.temperature()
+
     to_return = post_data(config.host_name, config.server_address, temp_value, 'TEMPERATURE')
     temp.close()
     return to_return
@@ -100,18 +103,11 @@ def post_expiration_date(config):
     return to_return
 
 def post_data(host_name, server_address, sensor_value, sensor_type):
+    server = xmlrpclib.ServerProxy(server_address)
     now = datetime.now().isoformat()
-    data = { 
-        'id' : now + host_name,
-        'method' : 'add',
-        'params' : {
-            'date_statement': now,
-            'sensor_value': sensor_value,
-            'sensor_type': sensor_type,
-            'host_name': host_name
-        }
-    }
-    http_post(server_address, data)
+    info("Posting data: %s" % host_name)
+    print server.add_data(host_name, now, sensor_value, sensor_type)
+
 #---------------------------- Main Part ---------------------------------------
 
 if __name__ == '__main__':
@@ -131,7 +127,19 @@ if __name__ == '__main__':
                                help="daemon mode",
                                action="store_true",
                                default=False)
+    parser.add_option ("-i", "--info", dest="info",
+                               help="post information",
+                               action="store_true",
+                               default=False)
 
+    parser.add_option ("-t", "--temperature", dest="temperature",
+                               help="post temperature value",
+                               action="store_true",
+                               default=False)
+    parser.add_option ("-s", "--subprocess", dest="subprocess",
+                               help="test subprocess",
+                               action="store_true",
+                               default=False)
     (options,args) = parser.parse_args ()
 
     if len(args) != 1:
@@ -144,7 +152,10 @@ if __name__ == '__main__':
         os.mkdir(log_dir)
     except OSError:
         pass
-    if options.daemon:
+    script_path = sys.argv[0]
+    if options.subprocess:
+        print subprocess.check_output([script_path, '-t', args[0]])
+    elif options.daemon:
         with daemon.DaemonContext(working_directory='/',
                 pidfile=lockfile.FileLock(os.path.join(log_dir,'temperature.pid')),
                 stdout=file(os.path.join(log_dir,'temperature.log'),'a'),
@@ -164,7 +175,9 @@ if __name__ == '__main__':
                     info("Try to collect data")
                     if (datetime.now()-temperature_interval) >= last_temp :
                         info("Try to collect temperature")
-                        post_temperature(cfg)
+                        msg = subprocess.check_output([script_path, '-t', args[0]])
+                        info('Result: %s' % msg)
+                        #post_temperature(cfg)
                         info("Temperature done")
                         last_temp = datetime.now()
                     if (datetime.now()-info_interval) >= last_info :
@@ -183,15 +196,24 @@ if __name__ == '__main__':
                     errors.append(err_msg)
                         
                     if (datetime.now()-error_interval) >= last_error :
-                        email.send("Erreur de %s" % cfg.host_name, "\n".join(errors))
+                        info("Send email with %s" % "\n".join(errors))
+                        try:
+                            email.send("Erreur de %s" % cfg.host_name, "\n".join(errors))
+                        except:
+                            date = datetime.now()
+                            err_msg = "%s: %s %s\n" % (date, type(e), str(e))
+                            sys.stderr.write(err_msg)
+                            sys.stderr.flush()
+                        last_error = datetime.now()
                         errors = []
                 info("Sleep for one minute")
                 time.sleep(60)
 
     else:
-        ow.init('u')
-        temp = TemperatureSensor(sensor_type=cfg.sensor.type)
-        print temp.temperature()
-        #post_temperature(cfg)
-        #post_balance(cfg)
-        #post_expiration_date(cfg)
+        if options.temperature:
+            ow.init('u')
+            temp = TemperatureSensor(sensor_type=cfg.sensor.type)
+            post_temperature(cfg)
+        if options.info:
+            post_balance(cfg)
+            post_expiration_date(cfg)
