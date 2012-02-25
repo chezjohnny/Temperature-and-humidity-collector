@@ -20,7 +20,6 @@ def create_app():
     app.config.from_object(default_config.Config)
     app.config.from_envvar('RDC_SETTINGS', silent=True)
     
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
     rpc_handler.connect(app, '/api')
 
 #-------- Login -------------

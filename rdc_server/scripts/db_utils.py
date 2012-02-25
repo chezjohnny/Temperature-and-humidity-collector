@@ -67,6 +67,7 @@ if __name__ == '__main__':
     if len(args) != 0:
         parser.error("Error: incorrect number of arguments, try --help")
 
+    os.environ['RDC_SETTINGS'] = '/usr/local/rdc/rdc_server.cfg'
     import rdc
     app = rdc.create_app()
     app.test_request_context().push()
@@ -76,10 +77,11 @@ if __name__ == '__main__':
     from rdc.models import DataCollector
     rdc.db.drop_all()
     rdc.db.create_all()
-    create('localhost','DISABLE')
-    create('ChezJohnny','ENABLE')
-    create('ChezArnold','WARNING')
-    create('ChezUnAutre','CRITICAL')
+    #create('localhost','DISABLE')
+    #create('ChezJohnny','ENABLE')
+    #create('ChezArnold','WARNING')
+    #create('ChezUnAutre','CRITICAL')
+    create('Test','DISABLE')
     #for dc in DataCollector.query.all():
     #    print "Temp: %s %s" % dc.last_value()
     #    print "Bal: %s %s" % dc.last_value('BALANCE')
