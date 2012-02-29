@@ -68,26 +68,28 @@ class TemperatureSensor(object):
         for sensor in root.find(type=self._sensor_type):
             to_return = float(sensor.temperature)
         return to_return
-    def close(self):
-        pass
 
 
 def post_temperature(config):
     temp = TemperatureSensor(sensor_type=config.sensor.type)
-    try:
-        temp_value = temp.temperature()
-    except:
-        ow.init('u')
-        info("Try to re-init")
-        date = datetime.now()
-        err_msg = "%s: %s %s\n" % (date, type(e), str(e))
-        sys.stderr.write(err_msg)
-        sys.stderr.flush()
-        temp_value = temp.temperature()
-
-    to_return = post_data(config.host_name, config.server_address, temp_value, 'TEMPERATURE')
-    temp.close()
-    return to_return
+    n = 3
+    while n:
+        try:
+            temp_value = temp.temperature()
+            if temp_value is not None:
+                post_data(config.host_name, config.server_address, temp_value, 'TEMPERATURE')
+            else:
+                raise TypeError
+            break
+        except Exception, e:
+            n -= 1
+            info("Temperature collection failed, retry!")
+            if n == 0:
+                date = datetime.now()
+                err_msg = "%s: %s %s\n" % (date, type(e), str(e))
+                sys.stderr.write(err_msg)
+                sys.stderr.flush()
+                raise
 
 def post_balance(config):
     modem = Modem3G(config)
@@ -106,7 +108,7 @@ def post_data(host_name, server_address, sensor_value, sensor_type):
     server = xmlrpclib.ServerProxy(server_address)
     now = datetime.now().isoformat()
     info("Posting data: %s" % host_name)
-    server.add_data(host_name, now, sensor_value, sensor_type)
+    print server.add_data(host_name, now, sensor_value, sensor_type)
 
 #---------------------------- Main Part ---------------------------------------
 
