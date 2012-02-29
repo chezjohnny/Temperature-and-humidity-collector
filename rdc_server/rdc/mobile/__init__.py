@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 from flask import Blueprint, g
 
 from ..tools import templated, get_best_language, get_user
@@ -27,16 +28,16 @@ def login():
         user = get_user(form.username.data, form.password.data)
         print user
         if user is None:
-            flash("Bad username or password.", "error")
+            flash("Mauvais mot de passe.", "error")
             return dict(form=form)
         login_user(user)
-        flash("Logged in successfully.", "info")
+        flash(u"Connection réussie.", "info")
         return redirect(url_for("mobile.configuration"))
     return dict(form=form)
 
 @mobile.route('/logout')
 def logout():
-    flash('You were logged out', "warning")
+    flash(u'Déconnextion réussie.', "warning")
     logout_user()
     return redirect(request.args.get("next") or url_for('mobile.index'))
 
@@ -59,7 +60,7 @@ def configuration(host_id):
             if form.enabled.data and dc.state == 'DISABLE':
                 dc.state = 'ENABLE'
             if not form.enabled.data and dc.state != 'DISABLE':
-                dc.state = 'ENABLE'
+                dc.state = 'DISABLE'
             db.session.merge(dc)
             db.session.commit()
             return redirect(url_for("mobile.configuration"))

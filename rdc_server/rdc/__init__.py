@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flask import Flask, g, redirect, url_for
 from flaskext.login import LoginManager
 
@@ -7,6 +8,7 @@ from rpc import rpc_handler
 from models import db
 
 login_manager = LoginManager()
+login_manager.login_message = u"Vous devez être connecté pour accèder à la page de configuration"
 
 @login_manager.user_loader
 def load_user(userid):

@@ -8,9 +8,9 @@ class ConfigurationForm(Form):
 
     enabled = BooleanField('Actif')
     alert_warning_value = DecimalField('Alerte',
-            [validators.NumberRange(min=-10, max=10, message="La valeur doit etre entre -10 et 10")])
+            [validators.NumberRange(min=-30, max=30, message=u"La valeur doit être entre -30 et 30")])
     alert_critical_value = DecimalField('Alerte Critique',
-            [validators.NumberRange(min=-10, max=10, message="La valeur doit etre entre -10 et 10")])
+            [validators.NumberRange(min=-30, max=30, message=u"La valeur doit être entre -30 et 30")])
     notifiers = TextField('Notifications')
     def __init__(self, *args, **kwargs):
         super(ConfigurationForm, self).__init__(*args, **kwargs)
