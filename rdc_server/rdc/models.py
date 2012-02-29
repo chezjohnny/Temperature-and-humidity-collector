@@ -73,9 +73,7 @@ class DataCollector(db.Model):
 
         
         if current_state == "ENABLE" and alert_zone == "WARNING":
-                self.notify(u"Alerte: %s" % self.host_name, u"La temperature
-                        (%s) est sous le seuil critique (%s)" %
-                        (last_temp_value, self.alert_warning_value))
+                self.notify(u"Alerte: %s" % self.host_name, u"La temperature (%s) est sous le seuil critique (%s)" % (last_temp_value, self.alert_warning_value))
                 self.state = alert_zone
         
         elif current_state == "ENABLE" and alert_zone == "CRITICAL" \
