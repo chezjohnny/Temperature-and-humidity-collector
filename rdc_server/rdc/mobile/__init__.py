@@ -54,13 +54,16 @@ def configuration(host_id):
         form = forms.ConfigurationForm(csrf_enabled=False)
         dc = DataCollector.query.filter(DataCollector.id == host_id).first()
         if request.method == 'POST' and form.validate_on_submit():
-            dc.alert_critical_value = form.alert_critical_value.data
-            dc.alert_warning_value = form.alert_warning_value.data
-            dc.notifiers = form.notifiers.data
+            dc.alert_critical_value = float(form.alert_critical_value.data)
+            dc.alert_warning_value = float(form.alert_warning_value.data)
+            dc.notifiers = str(form.notifiers.data)
             if form.enabled.data and dc.state == 'DISABLE':
                 dc.state = 'ENABLE'
             if not form.enabled.data and dc.state != 'DISABLE':
                 dc.state = 'DISABLE'
+            db.session.merge(dc)
+            db.session.commit()
+            dc.update_state()
             db.session.merge(dc)
             db.session.commit()
             return redirect(url_for("mobile.configuration"))

@@ -7,4 +7,8 @@ class Config(object):
     SECRET_KEY = 'change it'
     SUPPORTED_LANG = ['en','fr']
     SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test.db'
-
+    SMTP_HOST_NAME = "smtp.gmail.com"
+    SMTP_USER = 'change it'
+    SMTP_PASSWD = 'change it'
+    SMTP_PORT = 587
+    EMAIL_FROM = 'change it'

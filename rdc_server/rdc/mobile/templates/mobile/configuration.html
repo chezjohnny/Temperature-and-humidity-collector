@@ -12,7 +12,8 @@
 {% block body %}
   <ul data-role="listview">
     {% for info in hosts %}
-    <li class={{ info.state.lower()}}><a href={{ url_for('mobile.configuration', host_id=info.id) }}>
+		<li class={{ info.state.lower()}} data-role="list-divider">{{ info.date }}</li>
+    <li><a href={{ url_for('mobile.configuration', host_id=info.id) }}>
     <h3>{{ info.host_name }}</h3>
     <p><strong>Etat:</strong>{{ info.state }}</p>
     </a></li>

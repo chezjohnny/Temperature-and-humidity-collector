@@ -10,9 +10,12 @@ def add_data(host_name, date_statement, sensor_value, sensor_type="TEMPERATURE")
     if not dc:
         dc = DataCollector(host_name, "DISABLE", "-10", "-20","")
     s = DataSensors(date_statement, sensor_value, sensor_type)
+    dc.data.all()
     dc.data.append(s)
     db.session.merge(dc)
-    db.session.merge(s)
+    db.session.commit()
+    dc.update_state()
+    db.session.merge(dc)
     db.session.commit()
 
         #raise Fault("Mon exception", "I need someone to greeti %s!" %
