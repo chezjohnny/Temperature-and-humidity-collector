@@ -15,8 +15,6 @@ def add_data(host_name, date_statement, sensor_value, sensor_type="TEMPERATURE")
     db.session.merge(dc)
     db.session.commit()
     dc.update_state()
-    db.session.merge(dc)
-    db.session.commit()
 
         #raise Fault("Mon exception", "I need someone to greeti %s!" %
         #        (type(Fault)))

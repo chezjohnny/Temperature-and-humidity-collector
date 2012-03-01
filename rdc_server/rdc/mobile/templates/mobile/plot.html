@@ -7,7 +7,8 @@
 				<a href={{ request.script_root + request.path }} id="refresh" data-role="button" data-icon="refresh" data-iconpos="notext"></a>
         <div data-role="navbar">
           <ul>
-            <li><a href="#" id="day" class="ui-btn-active">Jour</a></li>
+            <li><a href="#" id="hour" class="ui-btn-active">Heure</a></li>
+            <li><a href="#" id="day">Jour</a></li>
             <li><a href="#" id="week">Semaine</a></li>
             <li><a href="#" id="month">Mois</a></li>
           </ul>
@@ -18,7 +19,7 @@
 
 {% block body %}
 <script>
-	period = 'day';
+	period = 'hour';
 	host_id = "{{ host_id }}";
 	sensor_type = 'TEMPERATURE';
 	data_url = "{{ url_for('mobile.get_temperature_data') }}";

@@ -25,7 +25,7 @@ $(document).bind("mobileinit", function () {
 });
 
 var plot_data = [];
-var period = 'day';
+var period = 'hour';
 var host_id = '1';
 var sensor_type = 'TEMPERATURE';
 var data_url = null;
@@ -73,7 +73,7 @@ $(document).delegate('#refresh', 'click', function () {
 $(document).delegate("#dataPage", "pagecreate", function () {
 
   $("#dataPage").bind("pageshow", function (event, data) {
-    period = 'day';
+    period = 'hour';
     update_series();
   });
 
@@ -85,6 +85,10 @@ $(document).delegate("#dataPage", "pagecreate", function () {
     $.plot($("#data-plot"), plot_data, { xaxis: { mode: "time" }});
   });
 
+  $("#hour").click(function () {
+    period = 'hour';
+    update_series();
+  });
   $("#day").click(function () {
     period = 'day';
     update_series();

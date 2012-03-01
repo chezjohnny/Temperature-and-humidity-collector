@@ -7,6 +7,7 @@ from flaskext.wtf import Form, BooleanField, TextField, PasswordField, validator
 class ConfigurationForm(Form):
 
     enabled = BooleanField('Actif')
+    is_visible = BooleanField('Visible')
     alert_warning_value = DecimalField('Alerte',
             [validators.NumberRange(min=-30, max=30, message=u"La valeur doit être entre -30 et 30")])
     alert_critical_value = DecimalField('Alerte Critique',

@@ -30,20 +30,23 @@ class DataCollector(db.Model):
     alert_warning_value = db.Column(db.Float)
     alert_critical_value = db.Column(db.Float)
     notifiers =  db.Column(db.String(128))
+    is_visible =  db.Column(db.Boolean())
     data = db.relationship('DataSensors', backref='collector',
                                             lazy='dynamic')
     def __init__(self, host_name, state, alert_warning_value,
-            alert_critical_value, notifiers):
+            alert_critical_value, notifiers, is_visible=False):
         self.host_name =  host_name
         self.state = state
         self.alert_warning_value = alert_warning_value
         self.alert_critical_value = alert_critical_value
         self.notifiers = notifiers
+        self.is_visible = is_visible
+
 
     def __repr__(self):
-        return "<DataCollector('%s','%s', '%s', '%s'))>" % (self.host_name,
+        return "<DataCollector('%s','%s', '%s', '%s', '%s'))>" % (self.host_name,
                 self.state, self.alert_warning_value,
-                self.alert_critical_value)
+                self.alert_critical_value, self.is_visible)
 
     def update_state(self):
         last_temp_value = None
@@ -84,7 +87,8 @@ class DataCollector(db.Model):
             or current_state == "WARNING" and alert_zone == "ENABLE" \
             or current_state == "CRITICAL" and alert_zone == "WARNING":
                 self.state = trigger_zone
-        print current_state, trigger_zone, alert_zone, last_temp_value
+        db.session.merge(self)
+        db.session.commit()
 
     def notify(self, subject, msg):
         print msg, self.notifiers.split(',')

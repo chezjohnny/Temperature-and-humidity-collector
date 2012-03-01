@@ -61,16 +61,16 @@ def configuration(host_id):
                 dc.state = 'ENABLE'
             if not form.enabled.data and dc.state != 'DISABLE':
                 dc.state = 'DISABLE'
+            dc.is_visible = form.is_visible.data
             db.session.merge(dc)
             db.session.commit()
             dc.update_state()
-            db.session.merge(dc)
-            db.session.commit()
             return redirect(url_for("mobile.configuration"))
         else:
             form.alert_critical_value.data = dc.alert_critical_value
             form.alert_warning_value.data = dc.alert_warning_value
             form.notifiers.data = dc.notifiers
+            form.is_visible.data = dc.is_visible
             if dc.state == 'DISABLE':
                 form.enabled.data = False
             else:
@@ -91,8 +91,10 @@ def get_temperature_data(host_id, sensor_type, period):
     elif period == 'week':
         from_date = now - datetime.timedelta(days=7)
         print "week"
-    else:
+    elif period == "day":
         from_date = now - datetime.timedelta(days=1)
+    else:
+        from_date = now - datetime.timedelta(hours=1)
     data = dc.get_data(from_date, to_date, sensor_type, 400, True)
     return jsonify({'data': data, 'warning': dc.alert_warning_value,
         'critical': dc.alert_critical_value, 'host_name' : dc.host_name})
@@ -109,7 +111,7 @@ def plot(host_id):
 @templated()
 def index():
     infos = []
-    for dc in DataCollector.query.all():
+    for dc in DataCollector.query.filter(DataCollector.is_visible == True ).all():
         infos.append(dc.get_info())
 
     return dict(title="mobile", page_id="main-page", host_informations=infos)

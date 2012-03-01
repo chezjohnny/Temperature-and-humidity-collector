@@ -81,7 +81,7 @@ if __name__ == '__main__':
     #create('ChezJohnny','ENABLE')
     #create('ChezArnold','WARNING')
     #create('ChezUnAutre','CRITICAL')
-    create('Test','DISABLE')
+    #create('Test','DISABLE')
     #for dc in DataCollector.query.all():
     #    print "Temp: %s %s" % dc.last_value()
     #    print "Bal: %s %s" % dc.last_value('BALANCE')
