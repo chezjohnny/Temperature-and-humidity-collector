@@ -53,9 +53,10 @@ class Email(object):
         smtpserver.starttls()
         smtpserver.ehlo
         smtpserver.login(self._user, self._passwd)
-        header = 'To:' + self._to + '\n' + 'From: ' + self._from + '\n' + 'Subject:' + subject + '\n'
-        msg = header + '\n' + body
-        smtpserver.sendmail(self._from, self._to, msg)
+        for _to in self._to:
+            header = 'To:' + _to + '\n' + 'From: ' + self._from + '\n' + 'Subject:' + subject + '\n'
+            msg = header + '\n' + body
+            smtpserver.sendmail(self._from, self._to, msg)
         smtpserver.close()
 
 class TemperatureSensor(object):
