@@ -55,6 +55,7 @@ function update_series() {
   $('#data-plot').hide();
   $.mobile.showPageLoadingMsg();
   $.ajax({
+    cache: false,
     url: data_url + host_id + '/TEMPERATURE/' + period,
     method: 'GET',
     dataType: 'json',

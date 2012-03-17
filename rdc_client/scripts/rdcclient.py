@@ -28,18 +28,35 @@ import subprocess
 import ow
 import smtplib
 import xmlrpclib
+import socket
+from email.MIMEText import MIMEText
 
+from easyprocess import EasyProcess
 # third party modules
 
+#----------------- Exceptions -------------------
+class SensorError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+class TimeoutError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+class CmdError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
 
 # local modules
 
-def info(msg):
-    now = datetime.now()
-    print "%s: %s" % (now, msg)
-    sys.stdout.flush()
-
 class Email(object):
+    """ To send email """
     def __init__(self, config):
         self._user = config.email.smtp.username
         self._passwd = config.email.smtp.password
@@ -54,12 +71,15 @@ class Email(object):
         smtpserver.ehlo
         smtpserver.login(self._user, self._passwd)
         for _to in self._to:
-            header = 'To:' + _to + '\n' + 'From: ' + self._from + '\n' + 'Subject:' + subject + '\n'
-            msg = header + '\n' + body
-            smtpserver.sendmail(self._from, self._to, msg)
+            msg = MIMEText(body)        # won't work
+            msg['From'] = self._from        # won't work
+            msg['To'] = _to       # won't work
+            msg['Subject'] = subject
+            smtpserver.sendmail(self._from, self._to, msg.as_string())
         smtpserver.close()
 
 class TemperatureSensor(object):
+    """ To collect temperature"""
     def __init__(self, sensor_type='DS18S20'):
         self._sensor_type = sensor_type
         #ow.init('u')
@@ -70,8 +90,14 @@ class TemperatureSensor(object):
             to_return = float(sensor.temperature)
         return to_return
 
+def info(msg):
+    """ Just a function to print message """
+    now = datetime.now()
+    print "%s: %s" % (now, msg)
+    sys.stdout.flush()
 
 def post_temperature(config):
+    """Send temperature to the server."""
     temp = TemperatureSensor(sensor_type=config.sensor.type)
     n = 3
     while n:
@@ -80,25 +106,23 @@ def post_temperature(config):
             if temp_value is not None:
                 post_data(config.host_name, config.server_address, temp_value, 'TEMPERATURE')
             else:
-                raise TypeError
+                raise SensorError("température")
             break
         except Exception, e:
             n -= 1
             info("Temperature collection failed, retry!")
             if n == 0:
-                date = datetime.now()
-                err_msg = "%s: %s %s\n" % (date, type(e), str(e))
-                sys.stderr.write(err_msg)
-                sys.stderr.flush()
                 raise
 
 def post_balance(config):
+    """Send the 3G balance value to the server"""
     modem = Modem3G(config)
     temp_value = modem.get_balance()
     to_return = post_data(config.host_name, config.server_address, temp_value, 'BALANCE')
     return to_return
 
 def post_expiration_date(config):
+    """Send the 3g key expiration date to the server."""
     modem = Modem3G(config)
     temp_value = modem.get_expiration_date()
     to_return = post_data(config.host_name, config.server_address, temp_value,
@@ -106,10 +130,23 @@ def post_expiration_date(config):
     return to_return
 
 def post_data(host_name, server_address, sensor_value, sensor_type):
+    """Post sensor values to the server"""
     server = xmlrpclib.ServerProxy(server_address)
     now = datetime.now().isoformat()
-    info("Posting data: %s" % host_name)
     print server.add_data(host_name, now, sensor_value, sensor_type)
+
+
+def sub_command(cmd_str, timeout=30):
+    """Run a command as child process using a timeout"""
+    cmd = EasyProcess(cmd_str)
+    cmd.call(timeout=timeout)
+    if cmd.timeout_happened:
+        raise TimeoutError("Erreur lors de la commande: %s, temps de réponse "\
+                "trop long." % cmd_str)
+    if cmd.return_code or cmd.oserror or cmd.timeout_happened:
+        raise CmdError("Erreur lors de la commande: %s, la commande retourne "\
+                "(%s, %s)." % (cmd_str, cmd.stderr, cmd.stdout))
+    return cmd.stdout
 
 #---------------------------- Main Part ---------------------------------------
 
@@ -148,23 +185,31 @@ if __name__ == '__main__':
     if len(args) != 1:
         parser.error("Error: incorrect number of arguments, try --help")
 
+    #configuration
     cfg = Config(args[0])
+    
+    #to send alert email
     email = Email(cfg)
+
+    #log directory
     log_dir = cfg.log_dir
     try:
         os.mkdir(log_dir)
     except OSError:
         pass
+
+    #actual script path
     script_path = sys.argv[0]
-    if options.subprocess:
-        print subprocess.check_output([script_path, '-t', args[0]])
-    elif options.daemon:
+
+    #Unix daemon mode
+    if options.daemon:
         with daemon.DaemonContext(working_directory='/',
                 pidfile=lockfile.FileLock(os.path.join(log_dir,'temperature.pid')),
                 stdout=file(os.path.join(log_dir,'temperature.log'),'a'),
                 stderr=file(os.path.join(log_dir,'temperature.err'), 'a')):
             
-            ow.init('u')
+            #time intervals to check when we have to collect data or send
+            #alerts
             now = datetime.now()
             temperature_interval = timedelta(minutes=cfg.interval.temperature)
             info_interval = timedelta(minutes=cfg.interval.info)
@@ -175,22 +220,24 @@ if __name__ == '__main__':
             errors = []
             while True:
                 try:
+
                     info("Try to collect data")
+
                     if (datetime.now()-temperature_interval) >= last_temp :
                         info("Try to collect temperature")
-                        msg = subprocess.check_output([script_path, '-t', args[0]])
+                        msg = sub_command("%s -t %s" % (script_path, args[0]),
+                                cfg.cmd.timeout)
                         info('Result: %s' % msg)
-                        #post_temperature(cfg)
                         info("Temperature done")
                         last_temp = datetime.now()
+
                     if (datetime.now()-info_interval) >= last_info :
-                        info("Try to collect balance")
-                        post_balance(cfg)
-                        info("Balance done")
-                        info("Try to collect expiration date")
-                        post_expiration_date(cfg)
-                        info("Expiration done")
+                        info("Try to collect informations")
+                        msg = sub_command("%s -i %s" % (script_path, args[0]),
+                                cfg.cmd.timeout)
+                        info("Information done")
                         last_info = datetime.now()
+
                 except Exception, e:
                     date = datetime.now()
                     err_msg = "%s: %s %s\n" % (date, type(e), str(e))
@@ -214,9 +261,46 @@ if __name__ == '__main__':
 
     else:
         if options.temperature:
-            ow.init('u')
-            temp = TemperatureSensor(sensor_type=cfg.sensor.type)
-            post_temperature(cfg)
-        if options.info:
-            post_balance(cfg)
-            post_expiration_date(cfg)
+            try:
+                ow.init('u')
+                temp = TemperatureSensor(sensor_type=cfg.sensor.type)
+                post_temperature(cfg)
+            except ow.exNoController:
+                print "L'adaptateur USB 1-Wire n'est pas connecté"
+                sys.exit(1)
+            except SensorError as e:
+                print "La sonde de %s n'est pas connectée." % e.value
+                sys.exit(1)
+            except xmlrpclib.ProtocolError:
+                print "Le serveur est mal configuré."
+                sys.exit(1)
+            except socket.gaierror:
+                print "Le serveur est mal configuré."
+                sys.exit(1)
+            except socket.error:
+                print "Le serveur ne répond pas."
+                sys.exit(1)
+            except Exception as e:
+                print "Une erreur inconnue est survenue: %s: %s\n" % (type(e), str(e))
+                sys.exit(1)
+
+        elif options.info:
+            import serial.serialutil
+            try:
+                post_balance(cfg)
+                post_expiration_date(cfg)
+            except serial.serialutil.SerialException:
+                print "Erreur: la clé 3G n'est pas connectée."
+                sys.exit(1)
+            except xmlrpclib.ProtocolError:
+                print "Le serveur est mal configuré."
+                sys.exit(1)
+            except socket.gaierror:
+                print "Le serveur est mal configuré."
+                sys.exit(1)
+            except socket.error:
+                print "Le serveur ne répond pas."
+                sys.exit(1)
+            except Exception as e:
+                print "Une erreur inconnue est survenue: %s: %s\n" % (type(e), str(e))
+                sys.exit(1)
