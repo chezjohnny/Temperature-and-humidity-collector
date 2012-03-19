@@ -112,6 +112,16 @@ def post_temperature(config):
             n -= 1
             info("Temperature collection failed, retry!")
             if n == 0:
+                if temp_value is not None and \
+                    float(temp_value) <= config.alert.value:
+                    modem = Modem3G(config)
+                    number = config.alert.sms
+                    msg = "Alert: " + config.host_name
+                    msg += """
+La temperature (%.3f inferieure a (%.3f) et le serveur ne repond pas.
+""" % (float(temp_value), config.alert.value)
+                    print "Send sms to %s: %s" % (number, msg)
+                    modem.send_sms(msg, number)
                 raise
 
 def post_balance(config):
@@ -212,10 +222,12 @@ if __name__ == '__main__':
             #alerts
             now = datetime.now()
             temperature_interval = timedelta(minutes=cfg.interval.temperature)
-            info_interval = timedelta(minutes=cfg.interval.info)
+            info_interval = None
+            if cfg.interval.info:
+                info_interval = timedelta(minutes=cfg.interval.info)
+                last_info = now - info_interval
             error_interval = timedelta(minutes=cfg.interval.error)
             last_temp = now - temperature_interval
-            last_info = now - info_interval
             last_error = now - error_interval
             errors = []
             while True:
@@ -231,7 +243,8 @@ if __name__ == '__main__':
                         info("Temperature done")
                         last_temp = datetime.now()
 
-                    if (datetime.now()-info_interval) >= last_info :
+                    
+                    if info_interval and (datetime.now()-info_interval) >= last_info :
                         info("Try to collect informations")
                         msg = sub_command("%s -i %s" % (script_path, args[0]),
                                 cfg.cmd.timeout)
@@ -266,19 +279,19 @@ if __name__ == '__main__':
                 temp = TemperatureSensor(sensor_type=cfg.sensor.type)
                 post_temperature(cfg)
             except ow.exNoController:
-                print "L'adaptateur USB 1-Wire n'est pas connecté"
+                print "L'adaptateur USB 1-Wire n'est pas connecte"
                 sys.exit(1)
             except SensorError as e:
-                print "La sonde de %s n'est pas connectée." % e.value
+                print "La sonde de %s n'est pas connectee." % e.value
                 sys.exit(1)
             except xmlrpclib.ProtocolError:
-                print "Le serveur est mal configuré."
+                print "Le serveur est mal configure."
                 sys.exit(1)
             except socket.gaierror:
-                print "Le serveur est mal configuré."
+                print "Le serveur est mal configure."
                 sys.exit(1)
             except socket.error:
-                print "Le serveur ne répond pas."
+                print "Le serveur ne repond pas."
                 sys.exit(1)
             except Exception as e:
                 print "Une erreur inconnue est survenue: %s: %s\n" % (type(e), str(e))
@@ -290,16 +303,16 @@ if __name__ == '__main__':
                 post_balance(cfg)
                 post_expiration_date(cfg)
             except serial.serialutil.SerialException:
-                print "Erreur: la clé 3G n'est pas connectée."
+                print "Erreur: la cle 3G n'est pas connectee."
                 sys.exit(1)
             except xmlrpclib.ProtocolError:
-                print "Le serveur est mal configuré."
+                print "Le serveur est mal configure."
                 sys.exit(1)
             except socket.gaierror:
-                print "Le serveur est mal configuré."
+                print "Le serveur est mal configure."
                 sys.exit(1)
             except socket.error:
-                print "Le serveur ne répond pas."
+                print "Le serveur ne repond pas."
                 sys.exit(1)
             except Exception as e:
                 print "Une erreur inconnue est survenue: %s: %s\n" % (type(e), str(e))
