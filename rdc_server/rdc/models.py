@@ -117,7 +117,7 @@ class DataCollector(db.Model):
         config.modem.speed = cfg.get('MODEM_SPEED')
         config.modem.timeout = cfg.get('MODEM_TIMEOUT')
         #print "Send sms to %s %s" % (_to, subject+body)
-        modem = Modem3G(config)
+        modem = rdcc.Modem3G(config)
         modem.send_sms(subject + "\n" + body, _to)
 
     def send_email(self, subject, body, _to):
