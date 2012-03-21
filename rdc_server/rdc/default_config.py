@@ -12,3 +12,6 @@ class Config(object):
     SMTP_PASSWD = 'change it'
     SMTP_PORT = 587
     EMAIL_FROM = 'change it'
+    MODEM_SPEED = 9600
+    MODEM_DEVICE = '/dev/ttyUSB2'
+    MODEM_TIMEOUT = 5

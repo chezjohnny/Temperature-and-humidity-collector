@@ -44,6 +44,12 @@ ul#lang {
   color: orange;
 }
 
+.txt-warning {
+	color: yellow;
+}
+.txt-critical {
+	color: red;
+}
 .warning {
 	background: none;
 	background-color: yellow;

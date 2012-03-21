@@ -4,6 +4,7 @@ from flask import Flask
 from sqlalchemy import and_, desc
 from flaskext.sqlalchemy import SQLAlchemy
 import smtplib
+import re
 db = SQLAlchemy()
 
 
@@ -76,28 +77,49 @@ class DataCollector(db.Model):
 
         
         if current_state == "ENABLE" and alert_zone == "WARNING":
-                self.notify(u"Alerte: %s" % self.host_name, u"La temperature (%s) est sous le seuil critique (%s)" % (last_temp_value, self.alert_warning_value))
-                self.state = alert_zone
+            self.notify(u"Alerte: %s" % self.host_name, u"La temperature (%s) est sous le seuil critique (%s)" % (last_temp_value, self.alert_warning_value))
+            self.state = alert_zone
         
         elif current_state == "ENABLE" and alert_zone == "CRITICAL" \
             or current_state == "WARNING" and alert_zone == "CRITICAL":
-                self.notify(u"Alerte Critique: %s" % self.host_name, u"La temperature (%s) est sous le seuil critique (%s)" % (last_temp_value, self.alert_critical_value))
-                self.state = alert_zone
+            self.notify(u"Alerte Critique: %s" % self.host_name, 
+                u"La temperature (%s) est sous le seuil critique (%s)" %
+                (last_temp_value, self.alert_critical_value), True)
+            self.state = alert_zone
+
         elif current_state == "CRITICAL" and alert_zone == "ENABLE" \
             or current_state == "WARNING" and alert_zone == "ENABLE" \
             or current_state == "CRITICAL" and alert_zone == "WARNING":
-                self.state = trigger_zone
+            self.state = trigger_zone
         db.session.merge(self)
         db.session.commit()
 
-    def notify(self, subject, msg):
+    def notify(self, subject, msg, critical=False):
         print msg, self.notifiers.split(',')
-        for n in self.notifiers.split(','):
+        notifiers = self.notifiers.replace(" ","").split(",")
+        emails = [x for x in notifiers if re.search(r'@',x)]
+        sms = [x for x in notifiers if not re.search(r'@',x)]
+        for n in emails:
             self.send_email(subject, msg, n)
-                
-                
+        if critical:
+            for n in sms:
+                self.send_sms(subject, msg, n)
 
     
+    def send_sms(self, subject, body, _to):
+        import rdcc
+        class Config():
+            pass
+        config = Config()
+        config.modem = Config()
+        cfg = db.get_app().config
+        config.modem.device = cfg.get('MODEM_DEVICE')
+        config.modem.speed = cfg.get('MODEM_SPEED')
+        config.modem.timeout = cfg.get('MODEM_TIMEOUT')
+        #print "Send sms to %s %s" % (_to, subject+body)
+        modem = Modem3G(config)
+        modem.send_sms(subject + "\n" + body, _to)
+
     def send_email(self, subject, body, _to):
         cfg = db.get_app().config
         print cfg.get('SMTP_PORT')
@@ -156,5 +178,7 @@ class DataCollector(db.Model):
         info.state = self.state.lower()
         info.balance = self.last_value('BALANCE')[1]
         info.expiration = self.last_value('EXPIRATION')[1]
+        info.warning = self.alert_warning_value
+        info.critical = self.alert_critical_value
         info.id = self.id
         return info

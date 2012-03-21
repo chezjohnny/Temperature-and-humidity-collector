@@ -15,12 +15,13 @@ setup(
     long_description=__doc__,
     packages=['rdcc'],
     zip_safe=False,
-    scripts=['scripts/rdcclient.py']
-    #install_requires=[
+    scripts=['scripts/rdcclient.py'],
+    install_requires=[
     #'Flask>=0.2',
     #'SQLAlchemy>=0.6',
     #'Flask-Login>=0.1',
     #'Flask-WTF>=0.5',
     #'Flask-Babel>=0.8'
-    #]
+    'pyserial>=2.6'
+    ]
 )
