@@ -5,6 +5,7 @@ from sqlalchemy import and_, desc
 from flaskext.sqlalchemy import SQLAlchemy
 import smtplib
 import re
+import datetime
 db = SQLAlchemy()
 
 
@@ -150,7 +151,8 @@ class DataCollector(db.Model):
             if n >= one_over_n:
                 date = d.date_statement
                 if isoformat:
-                    date = int(float(d.date_statement.strftime('%s'))*1000)
+                    utc_date_statement = d.date_statement + datetime.timedelta(hours=round((datetime.datetime.now() - datetime.datetime.utcnow()).seconds/(60.*60)))
+                    date = int(float(utc_date_statement.strftime('%s'))*1000)
                 value = d.sensor_value
                 if sensor_type == "TEMPERATURE":
                     value = float(value)
