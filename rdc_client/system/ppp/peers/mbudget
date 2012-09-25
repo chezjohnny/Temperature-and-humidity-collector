@@ -1,5 +1,5 @@
 /dev/ttyUSB0
-lock
+#lock
 persist
 user swisscom
 #ipparam tmobileumts

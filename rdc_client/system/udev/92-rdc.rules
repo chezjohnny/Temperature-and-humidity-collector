@@ -1,0 +1,5 @@
+#SUBSYSTEM=="usb", ATTRS{idProduct}=="1436", ATTRS{idVendor}=="12d1", RUN+="/usr/bin/logger 'plugin'"
+#KERNELS=="ttyUSB0", ATTRS{idProduct}=="1436", ENV{ACTION}=="add", RUN+="/usr/bin/logger 'plugin'"
+KERNEL=="ttyUSB0", ATTRS{bNumConfigurations}=="*", ENV{ACTION}=="add", RUN+="/sbin/ifup ppp0"
+KERNEL=="ttyUSB0", ATTRS{bNumConfigurations}=="*", ENV{ACTION}=="remove", RUN+="/sbin/ifdown ppp0"
+

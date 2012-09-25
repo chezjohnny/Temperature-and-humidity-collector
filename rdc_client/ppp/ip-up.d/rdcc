@@ -1,6 +1,0 @@
-#!/bin/sh
-
-#invoke ntpdate to set time from system clock
-if [ -x /usr/local/bin/rdcclient.py ]; then
-		/usr/local/bin/rdcclient.py -d /boot/config.yaml
-fi

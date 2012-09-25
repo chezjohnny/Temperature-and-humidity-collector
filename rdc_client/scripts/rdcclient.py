@@ -9,6 +9,8 @@ __license__ = "Internal Use Only"
 
 #---------------------------- Modules -----------------------------------------
 
+activate_this = '/root/.virtualenvs/rdc/bin/activate_this.py'
+execfile(activate_this, dict(__file__=activate_this))
 # import of standard modules
 import sys
 import os
@@ -90,7 +92,9 @@ class TemperatureSensor(object):
             to_return = float(sensor.temperature)
         return to_return
 
-def info(msg):
+def info(msg, verbose=False):
+    if not verbose:
+        return
     """ Just a function to print message """
     now = datetime.now()
     print "%s: %s" % (now, msg)
@@ -101,16 +105,18 @@ def post_temperature(config):
     temp = TemperatureSensor(sensor_type=config.sensor.type)
     n = 3
     while n:
+        temp_value = None
         try:
             temp_value = temp.temperature()
             if temp_value is not None:
-                post_data(config.host_name, config.server_address, temp_value, 'TEMPERATURE')
+                post_data(config.host_name, config.server_address, temp_value,
+                        'TEMPERATURE', verbose=config.debug)
             else:
                 raise SensorError("température")
             break
         except Exception, e:
             n -= 1
-            info("Temperature collection failed, retry!")
+            info("Temperature collection failed, retry!", config.debug)
             if n == 0:
                 if temp_value is not None and \
                     float(temp_value) <= config.alert.value:
@@ -120,7 +126,7 @@ def post_temperature(config):
                     msg += """
 La temperature (%.3f inferieure a (%.3f) et le serveur ne repond pas.
 """ % (float(temp_value), config.alert.value)
-                    print "Send sms to %s: %s" % (number, msg)
+                    info("Send sms to %s: %s" % (number, msg), config.debug)
                     modem.send_sms(msg, number)
                 raise
 
@@ -128,22 +134,25 @@ def post_balance(config):
     """Send the 3G balance value to the server"""
     modem = Modem3G(config)
     temp_value = modem.get_balance()
-    to_return = post_data(config.host_name, config.server_address, temp_value, 'BALANCE')
-    return to_return
+    to_return = post_data(config.host_name, config.server_address, temp_value,
+            'BALANCE', verbose=config.debug)
+    return to_return if to_return else "Unknown"
 
 def post_expiration_date(config):
     """Send the 3g key expiration date to the server."""
     modem = Modem3G(config)
     temp_value = modem.get_expiration_date()
     to_return = post_data(config.host_name, config.server_address, temp_value,
-            'EXPIRATION')
-    return to_return
+            'EXPIRATION', verbose=config.debug)
+    return to_return if to_return else "Unknown"
 
-def post_data(host_name, server_address, sensor_value, sensor_type):
+def post_data(host_name, server_address, sensor_value, sensor_type,
+        verbose=False):
     """Post sensor values to the server"""
     server = xmlrpclib.ServerProxy(server_address)
     now = datetime.now().isoformat()
-    print server.add_data(host_name, now, sensor_value, sensor_type)
+    msg = server.add_data(host_name, now, sensor_value, sensor_type)
+    info(msg, verbose)
 
 
 def sub_command(cmd_str, timeout=30):
@@ -233,14 +242,14 @@ if __name__ == '__main__':
             while True:
                 try:
 
-                    info("Try to collect data")
+                    info("Try to collect data", cfg.debug)
 
                     if (datetime.now()-temperature_interval) >= last_temp :
-                        info("Try to collect temperature")
+                        info("Try to collect temperature", cfg.debug)
                         msg = sub_command("%s -t %s" % (script_path, args[0]),
                                 cfg.cmd.timeout)
-                        info('Result: %s' % msg)
-                        info("Temperature done")
+                        info('Result: %s' % msg, cfg.debug)
+                        info("Temperature done", cfg.debug)
                         last_temp = datetime.now()
 
                     
@@ -248,7 +257,7 @@ if __name__ == '__main__':
                         info("Try to collect informations")
                         msg = sub_command("%s -i %s" % (script_path, args[0]),
                                 cfg.cmd.timeout)
-                        info("Information done")
+                        info("Information done", cfg.debug)
                         last_info = datetime.now()
 
                 except Exception, e:
@@ -259,7 +268,8 @@ if __name__ == '__main__':
                     errors.append(err_msg)
                         
                     if (datetime.now()-error_interval) >= last_error :
-                        info("Send email with %s" % "\n".join(errors))
+                        info("Send email with %s" % "\n".join(errors),
+                                cfg.debug)
                         try:
                             email.send("Erreur de %s" % cfg.host_name, "\n".join(errors))
                         except:
@@ -269,7 +279,7 @@ if __name__ == '__main__':
                             sys.stderr.flush()
                         last_error = datetime.now()
                         errors = []
-                info("Sleep for one minute")
+                info("Sleep for one minute", cfg.debug)
                 time.sleep(60)
 
     else:
@@ -277,24 +287,25 @@ if __name__ == '__main__':
             try:
                 ow.init('u')
                 temp = TemperatureSensor(sensor_type=cfg.sensor.type)
+                #print temp.temperature()
                 post_temperature(cfg)
             except ow.exNoController:
-                print "L'adaptateur USB 1-Wire n'est pas connecte"
+                sys.stderr.write("L'adaptateur USB 1-Wire n'est pas connecte\n")
                 sys.exit(1)
             except SensorError as e:
-                print "La sonde de %s n'est pas connectee." % e.value
+                sys.stderr.write("La sonde de %s n'est pas connectee.\n" % e.value)
                 sys.exit(1)
             except xmlrpclib.ProtocolError:
-                print "Le serveur est mal configure."
+                sys.stderr.write("Le serveur est mal configure.\n")
                 sys.exit(1)
             except socket.gaierror:
-                print "Le serveur est mal configure."
+                sys.stderr.write("Le serveur est mal configure.\n")
                 sys.exit(1)
             except socket.error:
-                print "Le serveur ne repond pas."
+                sys.stderr.write("Le serveur ne repond pas.\n")
                 sys.exit(1)
             except Exception as e:
-                print "Une erreur inconnue est survenue: %s: %s\n" % (type(e), str(e))
+                sys.stderr.write("Une erreur inconnue est survenue: %s: %s\n" % (type(e), str(e)))
                 sys.exit(1)
 
         elif options.info:
@@ -303,17 +314,17 @@ if __name__ == '__main__':
                 post_balance(cfg)
                 post_expiration_date(cfg)
             except serial.serialutil.SerialException:
-                print "Erreur: la cle 3G n'est pas connectee."
+                sys.stderr.write("Erreur: la cle 3G n'est pas connectee.\n")
                 sys.exit(1)
             except xmlrpclib.ProtocolError:
-                print "Le serveur est mal configure."
+                sys.stderr.write("Le serveur est mal configure.\n")
                 sys.exit(1)
             except socket.gaierror:
-                print "Le serveur est mal configure."
+                sys.stderr.write("Le serveur est mal configure.\n")
                 sys.exit(1)
             except socket.error:
-                print "Le serveur ne repond pas."
+                sys.stderr.write("Le serveur ne repond pas.\n")
                 sys.exit(1)
             except Exception as e:
-                print "Une erreur inconnue est survenue: %s: %s\n" % (type(e), str(e))
+                sys.stderr.write("Une erreur inconnue est survenue: %s: %s\n" % (type(e), str(e)))
                 sys.exit(1)
