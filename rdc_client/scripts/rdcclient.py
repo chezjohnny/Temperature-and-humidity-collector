@@ -133,17 +133,45 @@ La temperature (%.3f inferieure a (%.3f) et le serveur ne repond pas.
 def post_balance(config):
     """Send the 3G balance value to the server"""
     modem = Modem3G(config)
-    temp_value = modem.get_balance()
-    to_return = post_data(config.host_name, config.server_address, temp_value,
-            'BALANCE', verbose=config.debug)
+    to_return = None
+    n = 3
+    while n:
+        temp_value = None
+        try:
+            temp_value = modem.get_balance()
+            if temp_value is not None:
+                to_return = post_data(config.host_name, config.server_address, temp_value,
+                        'BALANCE', verbose=config.debug)
+            else:
+                raise SensorError("Balance value is None")
+            break
+        except Exception, e:
+            n -= 1
+            info("Balance collection failed, retry!", config.debug)
+            if n == 0:
+                raise
     return to_return if to_return else "Unknown"
 
 def post_expiration_date(config):
     """Send the 3g key expiration date to the server."""
     modem = Modem3G(config)
-    temp_value = modem.get_expiration_date()
-    to_return = post_data(config.host_name, config.server_address, temp_value,
-            'EXPIRATION', verbose=config.debug)
+    to_return = None
+    n = 3
+    while n:
+        temp_value = None
+        try:
+            temp_value = modem.get_expiration_date()
+            if temp_value is not None:
+                to_return = post_data(config.host_name, config.server_address, temp_value,
+                    'EXPIRATION', verbose=config.debug)
+            else:
+                raise SensorError("Expiration date value is None")
+            break
+        except Exception, e:
+            n -= 1
+            info("Expiration date collection failed, retry!", config.debug)
+            if n == 0:
+                raise
     return to_return if to_return else "Unknown"
 
 def post_data(host_name, server_address, sensor_value, sensor_type,
