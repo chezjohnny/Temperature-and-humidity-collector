@@ -62,7 +62,6 @@ def wakeup_network(host_name, n=20):
     success = -1
     for n in range(20):
         res = ping.do_one(host_name, 1, 1)
-        print n, res
         if res is not None:
             success = n
             break
