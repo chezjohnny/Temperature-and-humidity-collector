@@ -36,6 +36,7 @@ from email.MIMEText import MIMEText
 from easyprocess import EasyProcess
 # third party modules
 
+
 #----------------- Exceptions -------------------
 class SensorError(Exception):
     def __init__(self, value):
@@ -56,6 +57,16 @@ class CmdError(Exception):
         return repr(self.value)
 
 # local modules
+def wakeup_network(host_name, n=20):
+    import ping
+    success = -1
+    for n in range(20):
+        res = ping.do_one(host_name, 1, 1)
+        print n, res
+        if res is not None:
+            success = n
+            break
+    return success
 
 class Email(object):
     """ To send email """
@@ -67,6 +78,7 @@ class Email(object):
         self._from = config.email.add_from
         self._to = config.email.add_to
     def send(self, subject, body):
+        wakeup_network("chezjohnny.no-ip.org")
         smtpserver = smtplib.SMTP(self._host, self._port)
         smtpserver.ehlo()
         smtpserver.starttls()
@@ -102,10 +114,13 @@ def info(msg, verbose=False):
 
 def post_temperature(config):
     """Send temperature to the server."""
+    info("Collect temperature", config.debug)
     temp = TemperatureSensor(sensor_type=config.sensor.type)
+    info("Temperature collected%s" % temp, config.debug)
     n = 3
     while n:
         temp_value = None
+        info("Try to send data %s/%s" % (n-2, n), config.debug)
         try:
             temp_value = temp.temperature()
             if temp_value is not None:
@@ -177,8 +192,12 @@ def post_expiration_date(config):
 def post_data(host_name, server_address, sensor_value, sensor_type,
         verbose=False):
     """Post sensor values to the server"""
-    server = xmlrpclib.ServerProxy(server_address)
     now = datetime.now().isoformat()
+    info("Try to wakup the network", verbose)
+    wakeup_network("chezjohnny.no-ip.org")
+    info("Network ready", verbose)
+    server = xmlrpclib.ServerProxy(server_address)
+    info("Server connected, send data", verbose)
     msg = server.add_data(host_name, now, sensor_value, sensor_type)
     info(msg, verbose)
 
@@ -281,12 +300,12 @@ if __name__ == '__main__':
                         last_temp = datetime.now()
 
                     
-                    if info_interval and (datetime.now()-info_interval) >= last_info :
-                        info("Try to collect informations")
-                        msg = sub_command("%s -i %s" % (script_path, args[0]),
-                                cfg.cmd.timeout)
-                        info("Information done", cfg.debug)
-                        last_info = datetime.now()
+                    #if info_interval and (datetime.now()-info_interval) >= last_info :
+                    #    info("Try to collect informations")
+                    #    msg = sub_command("%s -i %s" % (script_path, args[0]),
+                    #            cfg.cmd.timeout)
+                    #    info("Information done", cfg.debug)
+                    #    last_info = datetime.now()
 
                 except Exception, e:
                     date = datetime.now()
@@ -329,9 +348,9 @@ if __name__ == '__main__':
             except socket.gaierror:
                 sys.stderr.write("Le serveur est mal configure.\n")
                 sys.exit(1)
-            except socket.error:
-                sys.stderr.write("Le serveur ne repond pas.\n")
-                sys.exit(1)
+            #except socket.error:
+            #    sys.stderr.write("Le serveur ne repond pas.\n")
+            #    sys.exit(1)
             except Exception as e:
                 sys.stderr.write("Une erreur inconnue est survenue: %s: %s\n" % (type(e), str(e)))
                 sys.exit(1)
