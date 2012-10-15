@@ -21,7 +21,8 @@
 # to the modem to cause it to hang up if hardware modem control signals
 # were not available.
 #disconnect "chat -- \d+++\d\c OK ath0 OK"
-disconnect "echo 'ATZ' > /dev/ttyUSB2"
+#disconnect "echo 'ATZ' > /dev/ttyUSB2"
+disconnect /etc/chatscripts/pct-hsdpa-3g-huawei-e220-mbudget-disconnect.chat
 
 # async character map -- 32-bit hex; each bit is a character
 # that needs to be escaped for pppd to receive it.  0x00000001
@@ -303,7 +304,7 @@ noipx
 
 # Do not exit after a connection is terminated; instead try to reopen
 # the connection.
-persist
+#persist
 
 # Terminate after n consecutive failed connection attempts.
 # A value of 0 means no limit. The default value is 10.
@@ -316,7 +317,7 @@ maxfail 0
 # When traffic is available, pppd will connect to the peer and perform
 # negotiation, authentication, etc.  When this is completed, pppd will
 # commence passing data packets (i.e., IP packets) across the link.
-#demand
+demand
 
 # Specifies that pppd should disconnect if the link is idle for <n> seconds.
 # The link is idle when no data packets (i.e. IP packets) are being sent or
@@ -324,14 +325,16 @@ maxfail 0
 # option without the demand option.  If the active-filter option is given,
 # data packets which are rejected by the specified activity filter also
 # count as the link being idle.
+# count as the link being idle.
 #idle <n>
+idle 10
 
 # Specifies how many seconds to wait before re-initiating the link after
 # it terminates.  This option only has any effect if the persist or demand
 # option is used.  The holdoff period is not applied if the link was
 # terminated because it was idle.
 #holdoff <n>
-holdoff 5
+holdoff 60
 
 # Wait for up n milliseconds after the connect script finishes for a valid
 # PPP packet from the peer.  At the end of this time, or when a valid PPP
@@ -339,6 +342,7 @@ holdoff 5
 # sending its first LCP packet.  The default value is 1000 (1 second).
 # This wait period only applies if the connect or pty option is used.
 #connect-delay <n>
+#connect-delay 5000
 
 # Packet filtering: for more information, see pppd(8)
 # Any packets matching the filter expression will be interpreted as link
