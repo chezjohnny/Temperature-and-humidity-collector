@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flaskext.wtf import Form, BooleanField, TextField, PasswordField, validators, DecimalField
+from flask_wtf import Form, BooleanField, TextField, PasswordField, validators, DecimalField
 
 #----------- Registration ---------------------
 class ConfigurationForm(Form):
