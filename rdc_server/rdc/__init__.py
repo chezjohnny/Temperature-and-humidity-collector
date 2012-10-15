@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, g, redirect, url_for
-from flaskext.login import LoginManager
+from flask_login import LoginManager
 
 import default_config
 from tools import ConfigUser, get_best_language

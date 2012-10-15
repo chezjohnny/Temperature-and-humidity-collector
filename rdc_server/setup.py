@@ -17,11 +17,11 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-    'Flask>=0.2',
-    'SQLAlchemy>=0.6',
-    'Flask-Login>=0.1',
-    'Flask-WTF>=0.5',
-    'Flask-XML-RPC>=0.1.2',
-    'Flask-SQLAlchemy>=0.15'
+    #'Flask>=0.2',
+    #'SQLAlchemy>=0.6',
+    #'Flask-Login>=0.1',
+    #'Flask-WTF>=0.5',
+    #'Flask-XML-RPC>=0.1.2',
+    #'Flask-SQLAlchemy>=0.15'
     ]
 )

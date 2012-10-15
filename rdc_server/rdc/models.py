@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from flask import Flask
 from sqlalchemy import and_, desc
-from flaskext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 import smtplib
 import re
 import datetime

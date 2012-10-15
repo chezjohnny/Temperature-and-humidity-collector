@@ -5,7 +5,7 @@ from flask import Blueprint, g
 
 from ..tools import templated, get_best_language, get_user
 from flask import render_template, request, flash, redirect, url_for, session, g, abort, current_app, jsonify
-from flaskext.login import login_user, login_required, logout_user, AnonymousUser
+from flask_login import login_user, login_required, logout_user, AnonymousUser
 import hashlib
 from ..models import DataCollector
 from .. import forms

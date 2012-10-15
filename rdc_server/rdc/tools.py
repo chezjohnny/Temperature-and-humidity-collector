@@ -3,7 +3,7 @@
 
 from flask import request, current_app
 from flask import render_template, g
-from flaskext.login import UserMixin
+from flask_login import UserMixin
 import hashlib
 from functools import wraps
 
