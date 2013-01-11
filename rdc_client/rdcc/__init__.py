@@ -262,7 +262,7 @@ class Modem3G(object):
         self._timeout = config.modem.timeout
         self._pin = config.modem.pin
         self._name = config.host_name
-        self._at_command('AT^CURC=0')
+        #self._at_command('AT^CURC=0')
         #self._at_command('AT^U2DIAG=0')
         
     def check_pin(self):
@@ -275,21 +275,47 @@ class Modem3G(object):
 
     def _at_command(self, command):
         #self._connection.open()
+        import time
         self._connection = serial.Serial(self._device, self._speed, timeout=self._timeout)  # open port
+        #print "ATZ"
+        #self._connection.write("ATZ\r\n")
+        #self._connection.write(ascii.ctrl('m'))                        # end session
+        #self._connection.flush()
+        #self._connection.flushInput()
+        #self._connection.flushOutput()
+        #time.sleep(4)
+        ##res = self._connection.readlines()
+        #res = []
+        #while self._connection.inWaiting():
+            #res.append(self._connection.readline())
         self._connection.write(command)
         self._connection.write(ascii.ctrl('m'))                        # end session
         #self._connection.close()
         #self._connection.open()
-        res = self._connection.readlines()
+        #res = self._connection.readlines()
+        self._connection.flush()
+        self._connection.flushInput()
+        self._connection.flushOutput()
+        time.sleep(3)
+        res = []
+        while self._connection.inWaiting():
+            res.append(self._connection.readline())
+        #print "ATZ"
+        #self._connection.write("ATZ\r\n")
+        #self._connection.write(ascii.ctrl('m'))                        # end session
+        #res1 = self._connection.readlines()
         self._connection.close()
-        self._connextion = None
+        #self._connection = None
         return res
 
     def _get_ussd(self, number):
         """Balance: *130#
            Expiration: *130*101#
         """
+        #self._at_command('AT^U2DIAG=0')
         at_msg = self._at_command('AT+CUSD=1, "%s", 15\r\n' % pdu_to_text(number))
+        print at_msg
+        #self._at_command('AT^U2DIAG=1')
         for msg in at_msg:
             if msg.startswith('+CUSD'):
                 to_return =  msg.split('"')[1]

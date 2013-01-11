@@ -316,13 +316,13 @@ if __name__ == '__main__':
                     if (datetime.now()-error_interval) >= last_error :
                         info("Send email with %s" % "\n".join(errors),
                                 cfg.debug)
-                        try:
-                            email.send("Erreur de %s" % cfg.host_name, "\n".join(errors))
-                        except:
-                            date = datetime.now()
-                            err_msg = "%s: %s %s\n" % (date, type(e), str(e))
-                            sys.stderr.write(err_msg)
-                            sys.stderr.flush()
+                        #try:
+                        #    email.send("Erreur de %s" % cfg.host_name, "\n".join(errors))
+                        #except:
+                        #    date = datetime.now()
+                        #    err_msg = "%s: %s %s\n" % (date, type(e), str(e))
+                        #    sys.stderr.write(err_msg)
+                        #    sys.stderr.flush()
                         last_error = datetime.now()
                         errors = []
                 info("Sleep for one minute", cfg.debug)
@@ -347,9 +347,9 @@ if __name__ == '__main__':
             except socket.gaierror:
                 sys.stderr.write("Le serveur est mal configure.\n")
                 sys.exit(1)
-            #except socket.error:
-            #    sys.stderr.write("Le serveur ne repond pas.\n")
-            #    sys.exit(1)
+            except socket.error:
+                sys.stderr.write("Le serveur ne repond pas.\n")
+                sys.exit(1)
             except Exception as e:
                 sys.stderr.write("Une erreur inconnue est survenue: %s: %s\n" % (type(e), str(e)))
                 sys.exit(1)
