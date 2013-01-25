@@ -77,7 +77,7 @@ class Email(object):
         self._from = config.email.add_from
         self._to = config.email.add_to
     def send(self, subject, body):
-        wakeup_network("chezjohnny.no-ip.org")
+        wakeup_network("rdc.mariethoz.net")
         smtpserver = smtplib.SMTP(self._host, self._port)
         smtpserver.ehlo()
         smtpserver.starttls()
@@ -193,7 +193,7 @@ def post_data(host_name, server_address, sensor_value, sensor_type,
     """Post sensor values to the server"""
     now = datetime.now().isoformat()
     info("Try to wakup the network", verbose)
-    wakeup_network("chezjohnny.no-ip.org")
+    wakeup_network("rdc.mariethoz.net")
     info("Network ready", verbose)
     server = xmlrpclib.ServerProxy(server_address)
     info("Server connected, send data", verbose)
@@ -299,12 +299,12 @@ if __name__ == '__main__':
                         last_temp = datetime.now()
 
                     
-                    #if info_interval and (datetime.now()-info_interval) >= last_info :
-                    #    info("Try to collect informations")
-                    #    msg = sub_command("%s -i %s" % (script_path, args[0]),
-                    #            cfg.cmd.timeout)
-                    #    info("Information done", cfg.debug)
-                    #    last_info = datetime.now()
+                    if info_interval and (datetime.now()-info_interval) >= last_info :
+                        info("Try to collect informations")
+                        msg = sub_command("%s -i %s" % (script_path, args[0]),
+                                cfg.cmd.timeout)
+                        info("Information done", cfg.debug)
+                        last_info = datetime.now()
 
                 except Exception, e:
                     date = datetime.now()
@@ -316,13 +316,13 @@ if __name__ == '__main__':
                     if (datetime.now()-error_interval) >= last_error :
                         info("Send email with %s" % "\n".join(errors),
                                 cfg.debug)
-                        #try:
-                        #    email.send("Erreur de %s" % cfg.host_name, "\n".join(errors))
-                        #except:
-                        #    date = datetime.now()
-                        #    err_msg = "%s: %s %s\n" % (date, type(e), str(e))
-                        #    sys.stderr.write(err_msg)
-                        #    sys.stderr.flush()
+                        try:
+                            email.send("Erreur de %s" % cfg.host_name, "\n".join(errors))
+                        except:
+                            date = datetime.now()
+                            err_msg = "%s: %s %s\n" % (date, type(e), str(e))
+                            sys.stderr.write(err_msg)
+                            sys.stderr.flush()
                         last_error = datetime.now()
                         errors = []
                 info("Sleep for one minute", cfg.debug)
