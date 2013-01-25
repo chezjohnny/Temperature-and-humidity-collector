@@ -14,7 +14,7 @@
 logger "Starting 3g at boot"
 if [ -e /dev/ttyUSB2 ]; then
 	logger "Configure 3g card"
-	/usr/local/bin/setcard.py
+	#/usr/local/bin/setcard.py
 fi
 udevadm trigger
 ifup ppp0

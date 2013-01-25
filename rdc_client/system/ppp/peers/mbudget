@@ -1,12 +1,13 @@
 /dev/ttyUSB0
-#lock
+lock
+460800
 persist
 user swisscom
 #ipparam tmobileumts
 connect "/usr/sbin/chat -v -f /etc/chatscripts/pct-hsdpa-3g-huawei-e220-mbudget.chat"
+#disconnect /etc/chatscripts/pct-hsdpa-3g-huawei-e220-mbudget-disconnect.chat
 noccp
 noauth
 noipdefault
 usepeerdns
 defaultroute replacedefaultroute
-

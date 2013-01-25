@@ -6,6 +6,7 @@ auto eth0
 iface eth0 inet dhcp
 # Example to keep MAC address between reboots
 #hwaddress ether DE:AD:BE:EF:CA:FE
+auto ppp0
 iface ppp0 inet ppp
     provider mbudget
 

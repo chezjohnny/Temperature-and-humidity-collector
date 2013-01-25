@@ -1,6 +1,5 @@
 #!/bin/sh
 
-#invoke ntpdate to set time from system clock
 if [ -e /var/log/rdc/temperature.pid.lock ]; then
 	logger "RDC: remove lock file and pkill process if needed"
 	pkill rdcclient.py

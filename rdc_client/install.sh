@@ -10,12 +10,12 @@ cp system/ppp/interfaces /etc/network/
 
 echo "Install ppp scripts"
 cp system/ppp/peers/mbudget /etc/ppp/peers/
-cp system/ppp/peers/options /etc/ppp/.
+cp system/ppp/options /etc/ppp/.
 cp system/ppp/ntpdate /etc/ppp/ip-up.d/.
 cp system/ppp/rdcc-up /etc/ppp/ip-up.d/.
 cp system/ppp/rdcc-down /etc/ppp/ip-down.d/.
 cp system/ppp/pct-hsdpa-3g-huawei-e220-mbudget.chat /etc/chatscripts/.
 
 echo "Install udev scripts"
-cp system/udev/* /lib/udev/rules.d/.
+cp system/udev/92-rdc.rules  /lib/udev/rules.d/.
 
