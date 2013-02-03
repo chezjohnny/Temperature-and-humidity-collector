@@ -276,7 +276,12 @@ class Modem3G(object):
     def _at_command(self, command, sleep=0):
         #self._connection.open()
         import time
-        self._connection = serial.Serial(self._device, self._speed, timeout=self._timeout)  # open port
+        self._connection = serial.Serial(self._device, 
+                self._speed, timeout=self._timeout,
+                parity=serial.PARITY_NONE,
+                stopbits=serial.STOPBITS_ONE,
+                bytesize=serial.EIGHTBITS
+                )  # open port
         self._connection.write(command)
         self._connection.write(ascii.ctrl('m'))                        # end session
         #self._connection.close()
@@ -297,22 +302,23 @@ class Modem3G(object):
         """Balance: *130#
            Expiration: *130*101#
         """
-        self._at_command('ATZ')
+        self._at_command('ATZ\r')
         #self._connection.write('ATZ')
         #self._connection.write(ascii.ctrl('m'))                        # end session
-        self._at_command('AT^CURC=0')
+        self._at_command('AT^CURC=0\r')
         at_msg = self._at_command('AT+CUSD=1, "%s", 15\r\n' %
                 pdu_to_text(number), 3)
-        self._at_command('AT^CURC=1')
+        to_return = None
         for msg in at_msg:
             if msg.startswith('+CUSD'):
-                to_return =  msg.split('"')[1]
-                to_return = decodeText7Bit(to_return)#.decode('latin1')
-                regexp = re.search(r'Fr.\s+(.*?)\.', to_return)
+                tmp_to_return =  msg.split('"')[1]
+                tmp_to_return = decodeText7Bit(tmp_to_return)#.decode('latin1')
+                regexp = re.search(r'Fr.\s+(.*?)\.', tmp_to_return)
                 if regexp:
-                    to_return = regexp.group(1)
-                return to_return
-        return None
+                    tmp_to_return = regexp.group(1)
+                to_return = tmp_to_return
+        self._at_command('AT^CURC=1\r')
+        return to_return
 
     def get_info(self):
         s = self._data.select()

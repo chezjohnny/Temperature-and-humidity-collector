@@ -79,7 +79,7 @@ class Email(object):
         self._to = config.email.add_to
 
     def send(self, subject, body):
-        #wakeup_network("rdc.mariethoz.net")
+        wakeup_network("rdc.mariethoz.net")
         smtpserver = smtplib.SMTP(self._host, self._port)
         smtpserver.ehlo()
         smtpserver.starttls()
@@ -194,9 +194,9 @@ def post_data(host_name, server_address, sensor_value, sensor_type,
         verbose=False):
     """Post sensor values to the server"""
     now = datetime.now().isoformat()
-    #info("Try to wakup the network", verbose)
-    #wakeup_network("rdc.mariethoz.net")
-    #info("Network ready", verbose)
+    info("Try to wakup the network", verbose)
+    wakeup_network("rdc.mariethoz.net")
+    info("Network ready", verbose)
     server = xmlrpclib.ServerProxy(server_address)
     info("Server connected, send data", verbose)
     msg = server.add_data(host_name, now, sensor_value, sensor_type)
