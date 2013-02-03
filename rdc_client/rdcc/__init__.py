@@ -273,7 +273,7 @@ class Modem3G(object):
         self._at_command('AT+CPIN="%s"'% self._pin)
 
 
-    def _at_command(self, command):
+    def _at_command(self, command, sleep=0):
         #self._connection.open()
         import time
         self._connection = serial.Serial(self._device, self._speed, timeout=self._timeout)  # open port
@@ -285,7 +285,8 @@ class Modem3G(object):
         self._connection.flush()
         self._connection.flushInput()
         self._connection.flushOutput()
-        time.sleep(3)
+        if sleep:
+            time.sleep(sleep)
         res = []
         while self._connection.inWaiting():
             res.append(self._connection.readline())
@@ -296,8 +297,12 @@ class Modem3G(object):
         """Balance: *130#
            Expiration: *130*101#
         """
+        self._at_command('ATZ')
+        #self._connection.write('ATZ')
+        #self._connection.write(ascii.ctrl('m'))                        # end session
         self._at_command('AT^CURC=0')
-        at_msg = self._at_command('AT+CUSD=1, "%s", 15\r\n' % pdu_to_text(number))
+        at_msg = self._at_command('AT+CUSD=1, "%s", 15\r\n' %
+                pdu_to_text(number), 3)
         self._at_command('AT^CURC=1')
         for msg in at_msg:
             if msg.startswith('+CUSD'):
