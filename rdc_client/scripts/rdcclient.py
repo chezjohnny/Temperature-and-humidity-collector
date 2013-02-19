@@ -35,6 +35,7 @@ from email.MIMEText import MIMEText
 
 from easyprocess import EasyProcess
 # third party modules
+REBOOT_CMD = EasyProcess("reboot -n")
 
 
 #----------------- Exceptions -------------------
@@ -113,6 +114,9 @@ def info(msg, verbose=False):
     print "%s: %s" % (now, msg)
     sys.stdout.flush()
 
+def post_boot(config):
+    post_data(config.host_name, config.server_address, "",
+                        'BOOT', verbose=config.debug)
 def post_temperature(config):
     """Send temperature to the server."""
     info("Collect temperature", config.debug)
@@ -180,9 +184,7 @@ def post_expiration_date(config):
             if temp_value is not None:
                 to_return = post_data(config.host_name, config.server_address, temp_value,
                     'EXPIRATION', verbose=config.debug)
-            else:
-                raise SensorError("Expiration date value is None")
-            break
+                break
         except Exception, e:
             n -= 1
             info("Expiration date collection failed, retry!", config.debug)
@@ -203,16 +205,26 @@ def post_data(host_name, server_address, sensor_value, sensor_type,
     info(msg, verbose)
 
 
-def sub_command(cmd_str, timeout=30):
+def sub_command(cmd_str, timeout=30, debug=False):
     """Run a command as child process using a timeout"""
-    cmd = EasyProcess(cmd_str)
-    cmd.call(timeout=timeout)
-    if cmd.timeout_happened:
-        raise TimeoutError("Erreur lors de la commande: %s, temps de réponse "\
-                "trop long." % cmd_str)
-    if cmd.return_code or cmd.oserror or cmd.timeout_happened:
-        raise CmdError("Erreur lors de la commande: %s, la commande retourne "\
-                "(%s, %s)." % (cmd_str, cmd.stderr, cmd.stdout))
+    n = 3
+    while n:
+        cmd = EasyProcess(cmd_str)
+        cmd.call(timeout=timeout)
+        if cmd.timeout_happened:
+            info("Command failed due to timeout, retry!", debug)
+            if n == 1:
+                raise TimeoutError("Erreur lors de la commande: %s, temps de réponse "\
+                    "trop long." % cmd_str)
+            n -= 1
+        elif cmd.return_code or cmd.oserror:
+            info("Command failed due unknown error, retry!", debug)
+            if n == 1:
+                raise CmdError("Erreur lors de la commande: %s, la commande retourne "\
+                    "(%s, %s)." % (cmd_str, cmd.stderr, cmd.stdout))
+            n -= 1
+        else:
+            break
     return cmd.stdout
 
 #---------------------------- Main Part ---------------------------------------
@@ -270,6 +282,10 @@ if __name__ == '__main__':
 
     #Unix daemon mode
     if options.daemon:
+        try:
+            post_boot(cfg)
+        except:
+            pass
         with daemon.DaemonContext(working_directory='/',
                 pidfile=lockfile.FileLock(os.path.join(log_dir,'temperature.pid')),
                 stdout=file(os.path.join(log_dir,'temperature.log'),'a'),
@@ -295,7 +311,7 @@ if __name__ == '__main__':
                     if (datetime.now()-temperature_interval) >= last_temp :
                         info("Try to collect temperature", cfg.debug)
                         msg = sub_command("%s -t %s" % (script_path, args[0]),
-                                cfg.cmd.timeout)
+                                timeout=cfg.cmd.timeout, debug=cfg.debug)
                         info('Result: %s' % msg, cfg.debug)
                         info("Temperature done", cfg.debug)
                         last_temp = datetime.now()
@@ -304,10 +320,16 @@ if __name__ == '__main__':
                     if info_interval and (datetime.now()-info_interval) >= last_info :
                         info("Try to collect informations")
                         msg = sub_command("%s -i %s" % (script_path, args[0]),
-                                cfg.cmd.timeout)
+                                timeout=cfg.cmd.timeout, debug=cfg.debug)
                         info("Information done", cfg.debug)
                         last_info = datetime.now()
-
+                except TimeoutError, e:
+                    date = datetime.now()
+                    err_msg = "%s: %s %s\n Rebooting...\n" % (date, type(e), str(e))
+                    sys.stderr.write(err_msg)
+                    sys.stderr.flush()
+                    time.sleep(3)
+                    REBOOT_CMD.call()
                 except Exception, e:
                     date = datetime.now()
                     err_msg = "%s: %s %s\n" % (date, type(e), str(e))
