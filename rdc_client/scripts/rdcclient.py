@@ -35,7 +35,7 @@ from email.MIMEText import MIMEText
 
 from easyprocess import EasyProcess
 # third party modules
-REBOOT_CMD = EasyProcess("reboot -n")
+REBOOT_CMD = EasyProcess("reboot -n -p")
 
 
 #----------------- Exceptions -------------------
@@ -115,6 +115,7 @@ def info(msg, verbose=False):
     sys.stdout.flush()
 
 def post_boot(config):
+    info("Post boot data", config.debug)
     post_data(config.host_name, config.server_address, "",
                         'BOOT', verbose=config.debug)
 def post_temperature(config):
@@ -250,6 +251,11 @@ if __name__ == '__main__':
                                help="post information",
                                action="store_true",
                                default=False)
+    
+    parser.add_option ("-b", "--boot", dest="boot",
+                               help="post boot",
+                               action="store_true",
+                               default=False)
 
     parser.add_option ("-t", "--temperature", dest="temperature",
                                help="post temperature value",
@@ -282,10 +288,6 @@ if __name__ == '__main__':
 
     #Unix daemon mode
     if options.daemon:
-        try:
-            post_boot(cfg)
-        except:
-            pass
         with daemon.DaemonContext(working_directory='/',
                 pidfile=lockfile.FileLock(os.path.join(log_dir,'temperature.pid')),
                 stdout=file(os.path.join(log_dir,'temperature.log'),'a'),
@@ -293,7 +295,8 @@ if __name__ == '__main__':
             
             #time intervals to check when we have to collect data or send
             #alerts
-            now = datetime.now()
+            #now = datetime.now()
+            now = datetime(1900,01,01,0,0,0)
             temperature_interval = timedelta(minutes=cfg.interval.temperature)
             info_interval = None
             if cfg.interval.info:
@@ -303,10 +306,21 @@ if __name__ == '__main__':
             last_temp = now - temperature_interval
             last_error = now - error_interval
             errors = []
+            info("Debug: now: %s last_temp: %s last_error: %s" %(now, last_temp, last_error), cfg.debug)
+            first = True
             while True:
+                try:
+                    if first:
+                        msg = sub_command("%s -b %s" % (script_path, args[0]),
+                                timeout=cfg.cmd.timeout, debug=cfg.debug)
+                        info("Boot done : %s", (cfg.debug, msg))
+                        first = False
+                except:
+                    pass
                 try:
 
                     info("Try to collect data", cfg.debug)
+                    info("Debug: now: %s last_temp: %s last_temp: %s" %(datetime.now(), temperature_interval, last_temp), cfg.debug)
 
                     if (datetime.now()-temperature_interval) >= last_temp :
                         info("Try to collect temperature", cfg.debug)
@@ -398,3 +412,9 @@ if __name__ == '__main__':
             except Exception as e:
                 sys.stderr.write("Une erreur inconnue est survenue: %s: %s\n" % (type(e), str(e)))
                 sys.exit(1)
+        
+        elif options.boot:
+                try:
+                    post_boot(cfg)
+                except:
+                    pass
