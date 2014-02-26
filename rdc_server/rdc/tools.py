@@ -31,6 +31,23 @@ class ConfigUser(UserMixin):
         self.id = hashlib.md5('%s.%s' % (current_app.config.get('USERNAME'),
                     current_app.config.get('PASSWORD'))).hexdigest()
 
+#class User(UserMixin):
+#    def __init__(self, name, id, active=True):
+#        self.name = name
+#        self.id = id
+#        self.active = active
+#
+#    def is_active(self):
+#        # Here you should write whatever the code is
+#        # that checks the database if your user is active
+#        return self.active
+#
+#    def is_anonymous(self):
+#        return False
+#
+#    def is_authenticated(self):
+#        return True
+
 def get_user(user_name, password):
     current_user = ConfigUser()
     current_hash = hashlib.md5('%s.%s' % (user_name, password))

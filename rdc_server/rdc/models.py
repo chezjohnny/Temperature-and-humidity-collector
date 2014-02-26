@@ -168,6 +168,7 @@ class DataCollector(db.Model):
         if last_value:
             return (last_value.date_statement, last_value.sensor_value)
         return None
+
     def get_info(self):
         class Info(object):
             pass
@@ -179,7 +180,13 @@ class DataCollector(db.Model):
         info.name = self.host_name
         info.state = self.state.lower()
         info.balance = self.last_value('BALANCE')[1]
+        info.voltage = "%.1f" % float(self.last_value('VOLTAGE')[1]) if self.last_value('VOLTAGE') else "n/a"
         info.expiration = self.last_value('EXPIRATION')[1]
+        info.boot = self.last_value('BOOT')
+	if info.boot:
+	    info.boot = info.boot[0].strftime('%d-%h-%Y %H:%M:%S')
+	else:
+	    info.boot = "n/a"
         info.warning = self.alert_warning_value
         info.critical = self.alert_critical_value
         info.id = self.id

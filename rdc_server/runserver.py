@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     if len(args) != 0:
         parser.error("Error: incorrect number of arguments, try --help")
-    os.environ['RDC_SETTINGS'] = '../cfg/rdc_server.cfg'
+    os.environ['RDC_SETTINGS'] = '/home/jojoweb/.virtualenvs/rdc/config/rdc.config'
     app = create_app()
     app.secret_key = app.config.get('SECRET_KEY')
     #app.run(debug=True)

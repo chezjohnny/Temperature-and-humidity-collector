@@ -5,7 +5,7 @@ from flask import Blueprint, g
 
 from ..tools import templated, get_best_language, get_user
 from flask import render_template, request, flash, redirect, url_for, session, g, abort, current_app, jsonify
-from flask_login import login_user, login_required, logout_user, AnonymousUser
+from flask_login import login_user, login_required, logout_user 
 import hashlib
 from ..models import DataCollector
 from .. import forms
@@ -26,7 +26,6 @@ def login():
     if request.method == 'POST' and form.validate_on_submit():
         # login and validate the user...
         user = get_user(form.username.data, form.password.data)
-        print user
         if user is None:
             flash("Mauvais mot de passe.", "error")
             return dict(form=form)
@@ -37,7 +36,7 @@ def login():
 
 @mobile.route('/logout')
 def logout():
-    flash(u'Déconnextion réussie.', "warning")
+    flash(u'Déconection réussie.', "warning")
     logout_user()
     return redirect(request.args.get("next") or url_for('mobile.index'))
 
@@ -90,7 +89,6 @@ def get_temperature_data(host_id, sensor_type, period):
         from_date = now - datetime.timedelta(days=30)
     elif period == 'week':
         from_date = now - datetime.timedelta(days=7)
-        print "week"
     elif period == "day":
         from_date = now - datetime.timedelta(days=1)
     else:

@@ -1,8 +1,8 @@
 {% macro render_info(info) %}
-<li class={{ info.state}} data-role="list-divider">{{ info.date }}<span class=ui-li-count>{{ info.temperature }}</span></li>
+<li class={{ info.state}} data-role="list-divider">{{ info.date }}<span class=ui-li-count>{{ info.temperature }}℃, {{ info.voltage }}V</span></li>
 <li><a href={{ url_for('mobile.plot', host_id=info.id) }}>
     <h3>{{ info.name }}</h3>
-    <p><strong>Etat:</strong>{{ info.state }}</p>
+    <p><strong>Etat:</strong>{{ info.state }} <strong>Boot:</strong> {{ info.boot }}</p>
     <p><strong>Solde:</strong>{{ info.balance }} <strong>Expiration:</strong>{{ info.expiration }}</p>
 		<p><strong>Alert:</strong>{{ info.warning }} <strong>Critique:</strong>{{ info.critical }}</p>
     <p class="ui-li-aside"><strong>{{ info.time }}</strong></p>

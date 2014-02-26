@@ -6,6 +6,7 @@ import default_config
 from tools import ConfigUser, get_best_language
 from rpc import rpc_handler
 from models import db
+from flask_login import login_user, login_required, logout_user
 
 login_manager = LoginManager()
 login_manager.login_message = u"Vous devez être connecté pour accèder à la page de configuration"
@@ -14,6 +15,8 @@ login_manager.login_message = u"Vous devez être connecté pour accèder à la p
 def load_user(userid):
     user = ConfigUser()
     return user
+
+
 
 def create_app():
     from mobile import mobile
@@ -27,7 +30,7 @@ def create_app():
 #-------- Login -------------
    
     app.register_blueprint(mobile, url_prefix='/mobile')
-    login_manager.setup_app(app)
+    login_manager.init_app(app)
     login_manager.login_view = "mobile.login"
     
     db.init_app(app)
@@ -36,7 +39,7 @@ def create_app():
 
 
 
+#@mobile.record_once
+#def on_load(state):
+#    login_manager.init_app(state.app)
 
-#@app.route('/')
-#def redirect_language():
-#    return redirect(url_for('frontend.index'))

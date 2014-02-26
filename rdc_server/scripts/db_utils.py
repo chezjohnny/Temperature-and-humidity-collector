@@ -68,6 +68,7 @@ if __name__ == '__main__':
         parser.error("Error: incorrect number of arguments, try --help")
 
     #os.environ['RDC_SETTINGS'] = '/usr/local/rdc/rdc_server.cfg'
+    os.environ['RDC_SETTINGS'] = '/home/jojoweb/.virtualenvs/rdc/config/rdc.config'
     import rdc
     app = rdc.create_app()
     app.test_request_context().push()
