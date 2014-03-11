@@ -242,13 +242,12 @@ if __name__ == '__main__':
 
     parser = OptionParser(usage)
 
-    parser.set_description ("Change It")
-
-
+    parser.set_description ("Deamon to collect 1wire data and send to a remote server")
 
     parser.add_option ("-v", "--verbose", dest="verbose",
                        help="Verbose mode",
                        action="store_true", default=False)
+
     parser.add_option ("-d", "--daemon", dest="daemon",
                                help="daemon mode",
                                action="store_true",
@@ -267,10 +266,12 @@ if __name__ == '__main__':
                                help="post temperature value",
                                action="store_true",
                                default=False)
+
     parser.add_option ("-s", "--subprocess", dest="subprocess",
                                help="test subprocess",
                                action="store_true",
                                default=False)
+
     (options,args) = parser.parse_args ()
 
     if len(args) != 1:
@@ -303,9 +304,7 @@ if __name__ == '__main__':
             #time intervals to check when we have to collect data or send
             #alerts
             info("Debug", cfg.debug)
-            #now = datetime.now()
             import uptime
-            #now = datetime(1900,01,01,0,0,0)
             now = uptime.uptime()
             temperature_interval = int(cfg.interval.temperature)*60.
             info_interval = None
