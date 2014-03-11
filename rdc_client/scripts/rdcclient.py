@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/root/.virtualenvs/rdc/bin/python
 # -*- coding: utf-8 -*-
 
 __author__ = "Johnny Mariethoz <Johnny.Mariethoz@rero.ch>"
@@ -43,22 +43,23 @@ class SensorError(Exception):
     def __init__(self, value):
         self.value = value
     def __str__(self):
-        return repr(self.value)
+        return self.value
 
 class TimeoutError(Exception):
     def __init__(self, value):
         self.value = value
     def __str__(self):
-        return repr(self.value)
+        return self.value
 
 class CmdError(Exception):
     def __init__(self, value):
         self.value = value
     def __str__(self):
-        return repr(self.value)
+        return self.value
 
 # local modules
 def wakeup_network(host_name, n=20):
+    return 1
     import ping
     success = -1
     for n in range(20):
@@ -87,7 +88,7 @@ class Email(object):
         smtpserver.ehlo
         smtpserver.login(self._user, self._passwd)
         for _to in self._to:
-            msg = MIMEText(body)        # won't work
+            msg = MIMEText(body,"plain", "utf-8")        # won't work
             msg['From'] = self._from        # won't work
             msg['To'] = _to       # won't work
             msg['Subject'] = subject
@@ -118,6 +119,12 @@ def post_boot(config):
     info("Post boot data", config.debug)
     post_data(config.host_name, config.server_address, "",
                         'BOOT', verbose=config.debug)
+def post_voltage(config):
+    info("Post voltage data", config.debug)
+    val = int(file("/sys/devices/platform/omap/tsc/ain1").read())/4096. * 1.8 * 11
+    post_data(config.host_name, config.server_address, val,
+                        'VOLTAGE', verbose=config.debug)
+
 def post_temperature(config):
     """Send temperature to the server."""
     info("Collect temperature", config.debug)
@@ -215,14 +222,13 @@ def sub_command(cmd_str, timeout=30, debug=False):
         if cmd.timeout_happened:
             info("Command failed due to timeout, retry!", debug)
             if n == 1:
-                raise TimeoutError("Erreur lors de la commande: %s, temps de réponse "\
+                raise TimeoutError(u"Erreur lors de la commande: %s, temps de réponse "\
                     "trop long." % cmd_str)
             n -= 1
         elif cmd.return_code or cmd.oserror:
             info("Command failed due unknown error, retry!", debug)
             if n == 1:
-                raise CmdError("Erreur lors de la commande: %s, la commande retourne "\
-                    "(%s, %s)." % (cmd_str, cmd.stderr, cmd.stdout))
+                raise CmdError(u"%s" % (cmd.stderr))
             n -= 1
         else:
             break
@@ -285,24 +291,28 @@ if __name__ == '__main__':
 
     #actual script path
     script_path = sys.argv[0]
+    info("Debug", cfg.debug)
 
     #Unix daemon mode
     if options.daemon:
         with daemon.DaemonContext(working_directory='/',
-                pidfile=lockfile.FileLock(os.path.join(log_dir,'temperature.pid')),
-                stdout=file(os.path.join(log_dir,'temperature.log'),'a'),
-                stderr=file(os.path.join(log_dir,'temperature.err'), 'a')):
-            
+            pidfile=lockfile.FileLock(os.path.join(log_dir,'temperature.pid')),
+            stdout=file(os.path.join(log_dir,'temperature.log'),'a'),
+            stderr=file(os.path.join(log_dir,'temperature.err'), 'a')):
+
             #time intervals to check when we have to collect data or send
             #alerts
+            info("Debug", cfg.debug)
             #now = datetime.now()
-            now = datetime(1900,01,01,0,0,0)
-            temperature_interval = timedelta(minutes=cfg.interval.temperature)
+            import uptime
+            #now = datetime(1900,01,01,0,0,0)
+            now = uptime.uptime()
+            temperature_interval = int(cfg.interval.temperature)*60.
             info_interval = None
             if cfg.interval.info:
-                info_interval = timedelta(minutes=cfg.interval.info)
+                info_interval = int(cfg.interval.info)*60.
                 last_info = now - info_interval
-            error_interval = timedelta(minutes=cfg.interval.error)
+            error_interval = int(cfg.interval.error)*60.
             last_temp = now - temperature_interval
             last_error = now - error_interval
             errors = []
@@ -313,45 +323,46 @@ if __name__ == '__main__':
                     if first:
                         msg = sub_command("%s -b %s" % (script_path, args[0]),
                                 timeout=cfg.cmd.timeout, debug=cfg.debug)
-                        info("Boot done : %s", (cfg.debug, msg))
                         first = False
+                        info("Boot done : %s", (cfg.debug,
+                            datetime.datetime.now()))
                 except:
                     pass
                 try:
 
                     info("Try to collect data", cfg.debug)
-                    info("Debug: now: %s last_temp: %s last_temp: %s" %(datetime.now(), temperature_interval, last_temp), cfg.debug)
+                    info("Debug: now: %s last_temp: %s last_temp: %s" %(now, temperature_interval, last_temp), cfg.debug)
 
-                    if (datetime.now()-temperature_interval) >= last_temp :
+                    if (uptime.uptime()-temperature_interval) >= last_temp :
                         info("Try to collect temperature", cfg.debug)
                         msg = sub_command("%s -t %s" % (script_path, args[0]),
                                 timeout=cfg.cmd.timeout, debug=cfg.debug)
                         info('Result: %s' % msg, cfg.debug)
                         info("Temperature done", cfg.debug)
-                        last_temp = datetime.now()
+                        last_temp = uptime.uptime()
 
                     
-                    if info_interval and (datetime.now()-info_interval) >= last_info :
+                    if info_interval and (uptime.uptime()-info_interval) >= last_info :
                         info("Try to collect informations")
                         msg = sub_command("%s -i %s" % (script_path, args[0]),
                                 timeout=cfg.cmd.timeout, debug=cfg.debug)
                         info("Information done", cfg.debug)
-                        last_info = datetime.now()
+                        last_info = uptime.uptime()
                 except TimeoutError, e:
                     date = datetime.now()
-                    err_msg = "%s: %s %s\n Rebooting...\n" % (date, type(e), str(e))
+                    err_msg = "%s: %s %s\n Rebooting...\n" % (date, type(e), e)
                     sys.stderr.write(err_msg)
                     sys.stderr.flush()
                     time.sleep(3)
                     REBOOT_CMD.call()
                 except Exception, e:
                     date = datetime.now()
-                    err_msg = "%s: %s %s\n" % (date, type(e), str(e))
+                    err_msg = u"%s\n\n%s\n%s" % (e, date, type(e))
                     sys.stderr.write(err_msg)
                     sys.stderr.flush()
                     errors.append(err_msg)
                         
-                    if (datetime.now()-error_interval) >= last_error :
+                    if (uptime.uptime()-error_interval) >= last_error :
                         info("Send email with %s" % "\n".join(errors),
                                 cfg.debug)
                         try:
@@ -361,7 +372,7 @@ if __name__ == '__main__':
                             err_msg = "%s: %s %s\n" % (date, type(e), str(e))
                             sys.stderr.write(err_msg)
                             sys.stderr.flush()
-                        last_error = datetime.now()
+                        last_error = uptime.uptime()
                         errors = []
                 info("Sleep for one minute", cfg.debug)
                 time.sleep(60)
@@ -374,16 +385,16 @@ if __name__ == '__main__':
                 #print temp.temperature()
                 post_temperature(cfg)
             except ow.exNoController:
-                sys.stderr.write("L'adaptateur USB 1-Wire n'est pas connecte\n")
+                sys.stderr.write("L'adaptateur USB 1-Wire n'est pas connecté\n")
                 sys.exit(1)
             except SensorError as e:
-                sys.stderr.write("La sonde de %s n'est pas connectee.\n" % e.value)
+                sys.stderr.write("La sonde de %s n'est pas connectée.\n" % e.value)
                 sys.exit(1)
             except xmlrpclib.ProtocolError:
-                sys.stderr.write("Le serveur est mal configure.\n")
+                sys.stderr.write("Le serveur est mal configuré.\n")
                 sys.exit(1)
             except socket.gaierror:
-                sys.stderr.write("Le serveur est mal configure.\n")
+                sys.stderr.write("Le serveur est mal configuré.\n")
                 sys.exit(1)
             except socket.error:
                 sys.stderr.write("Le serveur ne repond pas.\n")
@@ -391,6 +402,10 @@ if __name__ == '__main__':
             except Exception as e:
                 sys.stderr.write("Une erreur inconnue est survenue: %s: %s\n" % (type(e), str(e)))
                 sys.exit(1)
+            try:
+                post_voltage(cfg)
+            except:
+                pass
 
         elif options.info:
             import serial.serialutil
@@ -398,13 +413,13 @@ if __name__ == '__main__':
                 post_balance(cfg)
                 post_expiration_date(cfg)
             except serial.serialutil.SerialException:
-                sys.stderr.write("Erreur: la cle 3G n'est pas connectee.\n")
+                sys.stderr.write("Erreur: la cle 3G n'est pas connectée.\n")
                 sys.exit(1)
             except xmlrpclib.ProtocolError:
-                sys.stderr.write("Le serveur est mal configure.\n")
+                sys.stderr.write("Le serveur est mal configuré.\n")
                 sys.exit(1)
             except socket.gaierror:
-                sys.stderr.write("Le serveur est mal configure.\n")
+                sys.stderr.write("Le serveur est mal configuré.\n")
                 sys.exit(1)
             except socket.error:
                 sys.stderr.write("Le serveur ne repond pas.\n")
