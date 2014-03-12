@@ -22,6 +22,6 @@ setup(
         "python-daemon>=1.6",
         "lockfile>=0.9.1",
         "pyserial>=2.6",
-        "uptime">="3.0.1"
+        "uptime>=3.0.1"
     ]
 )

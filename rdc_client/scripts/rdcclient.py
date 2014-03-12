@@ -1,4 +1,4 @@
-#!/root/.virtualenvs/rdc/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 __author__ = "Johnny Mariethoz <Johnny.Mariethoz@rero.ch>"
@@ -13,6 +13,9 @@ activate_this = '/root/.virtualenvs/rdc/bin/activate_this.py'
 execfile(activate_this, dict(__file__=activate_this))
 # import of standard modules
 import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 import os
 from optparse import OptionParser
 import json
@@ -145,6 +148,7 @@ def post_temperature(config):
         except Exception, e:
             n -= 1
             info("Temperature collection failed, retry!", config.debug)
+            time.sleep(3)
             if n == 0:
                 if temp_value is not None and \
                     float(temp_value) <= config.alert.value:
