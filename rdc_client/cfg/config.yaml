@@ -1,9 +1,9 @@
 host_name: 'ChezJohnny'
-server_address : 'http://www.exemple.com/rdc'
+server_address : 'http://rdc.mariethoz.net/api'
 modem:
 {
   device: '/dev/ttyUSB2',
-  speed: 9600,
+  speed: 460800,
   timeout: 5,
   pin: 1234
 }
@@ -31,3 +31,7 @@ email:
    add_to: 'to@gmail.com'
 }
 
+cmd :{
+    timeout: 120
+}
+debug: True

@@ -9,8 +9,6 @@ __license__ = "Internal Use Only"
 
 #---------------------------- Modules -----------------------------------------
 
-activate_this = '/root/.virtualenvs/rdc/bin/activate_this.py'
-execfile(activate_this, dict(__file__=activate_this))
 # import of standard modules
 import sys
 reload(sys)

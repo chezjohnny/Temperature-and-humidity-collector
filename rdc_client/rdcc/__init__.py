@@ -280,6 +280,7 @@ class Modem3G(object):
                 self._speed, timeout=self._timeout,
                 parity=serial.PARITY_NONE,
                 stopbits=serial.STOPBITS_ONE,
+		rtscts=True, dsrdtr=True,
                 bytesize=serial.EIGHTBITS
                 )  # open port
         self._connection.write(command)

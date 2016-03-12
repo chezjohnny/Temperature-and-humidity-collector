@@ -17,5 +17,5 @@ if [ ! $rdc_pid ]; then
 		rm /var/log/rdc/temperature.pid.lock 
 	fi
 	logger "RDC: begin temperature collection"
-	/root/.virtualenvs/rdc/bin/rdcclient.py -d /boot/uboot/rdc_config.txt
+	/home/pi/.virtualenvs/rdc/bin/rdcclient.py -d /home/pi/.virtualenvs/rdc/config.yaml
 fi

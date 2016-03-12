@@ -15,7 +15,7 @@ setup(
     long_description=__doc__,
     packages=['rdcc'],
     zip_safe=False,
-    scripts=['scripts/rdcclient.py', 'scripts/setcard.py'],
+    scripts=['scripts/rdcclient.py'],
     install_requires=[
         "EasyProcess>=0.1.4",
         "config>=0.3.7",
