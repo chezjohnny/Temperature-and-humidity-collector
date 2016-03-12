@@ -1,0 +1,21 @@
+#!/bin/sh
+
+#invoke ntpdate to set time from system clock
+#if [ -e /var/log/rdc/temperature.pid.lock ]; then
+#	logger "RDC: remove lock file and pkill process if needed"
+#	pkill rdcclient.py
+#	rm -f /var/log/rdc/temperature.pid.lock
+#fi
+#if [ -x /root/.virtualenvs/rdc/bin/rdcclient.py  ]; then
+#	logger "RDC: begin temperature collection"
+#		/root/.virtualenvs/rdc/bin/rdcclient.py -d /boot/uboot/rdc_config.txt
+#fi
+rdc_pid=$(pgrep rdcclient)
+if [ ! $rdc_pid ]; then
+
+	if [ -e /var/log/rdc/temperature.pid.lock  ]; then
+		rm /var/log/rdc/temperature.pid.lock 
+	fi
+	logger "RDC: begin temperature collection"
+	/home/pi/.virtualenvs/rdc/bin/rdcclient.py -d /home/pi/.virtualenvs/rdc/config.yaml
+fi
