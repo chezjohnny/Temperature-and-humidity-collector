@@ -1,0 +1,6 @@
+SUBSYSTEM!="usb_device", ACTION!="add", GOTO="owfs_rules_end"
+
+# DS2490 1-Wire adapter
+ATTR{idVendor}=="04fa", ATTR{idProduct}=="2490", MODE="660", GROUP="pi"
+
+LABEL="owfs_rules_end"

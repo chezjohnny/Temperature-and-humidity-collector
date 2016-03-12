@@ -1,0 +1,5 @@
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="12d1", ATTRS{idProduct}=="1446", RUN+="/usr/sbin/usb_modeswitch -J -v 0x12d1 -p 0x1446"
+KERNEL=="ttyUSB0", SUBSYSTEM=="usb-serial", ACTION=="add", RUN+="/bin/systemctl --no-block start ppp0.service"
+KERNEL=="ttyUSB0", SUBSYSTEM=="usb-serial", ACTION=="remove", RUN+="/bin/systemctl --no-block stop ppp0.service"
+#KERNEL=="ttyUSB0", SUBSYSTEM=="usb-serial", ACTION=="add", ENV{SYSTEMD_WANTS}+="ppp0.service"
+

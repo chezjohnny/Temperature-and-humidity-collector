@@ -1,0 +1,8 @@
+[Unit]
+Description=Mount and Unmount ppp0
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/ifup ppp0
+ExecStop=/sbin/ifdown ppp0
+RemainAfterExit=true
