@@ -83,11 +83,14 @@ class Email(object):
 
     def send(self, subject, body):
         wakeup_network("rdc.mariethoz.net")
-        smtpserver = smtplib.SMTP(self._host, self._port)
-        smtpserver.ehlo()
-        smtpserver.starttls()
-        smtpserver.ehlo
-        smtpserver.login(self._user, self._passwd)
+        if self._host == "localhost":
+            smtpserver = smtplib.SMTP(self._host)
+        else:
+            smtpserver = smtplib.SMTP(self._host, self._port)
+            smtpserver.ehlo()
+            smtpserver.starttls()
+            smtpserver.ehlo
+            smtpserver.login(self._user, self._passwd)
         for _to in self._to:
             msg = MIMEText(body,"plain", "utf-8")        # won't work
             msg['From'] = self._from        # won't work
