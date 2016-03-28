@@ -1,10 +1,10 @@
-host_name: 'ChezJohnny'
+host_name: 'Brezil'
 server_address : 'http://rdc.mariethoz.net/api'
 modem:
 {
   device: '/dev/ttyUSB2',
-  speed: 460800,
-  timeout: 5,
+  speed: 9600,
+  timeout: 20,
   pin: 1234
 }
 log_dir : '/var/run/rdc'
@@ -13,8 +13,8 @@ sensor :
     type: 'DS18S20',
 }
 interval : {
-    temperature: 1
-    info: 10
+    temperature: 4
+    info: 60
     error: 10
 }
 email: 
@@ -23,12 +23,17 @@ email:
    {
         username: 'changeit@gmail.com',
         password: 'changeit',
-        port: 587,
-        host: 'smtp.gmail.com'
-
+        port: 25,
+        host: 'localhost'
    }
-   add_from: 'from@gmail.com',
-   add_to: 'to@gmail.com'
+   add_from: 'sender@email.com',
+   add_to: ['receiver@email.com']
+}
+
+alert:
+{
+	sms: 'Phone Number'
+	value: -1
 }
 
 cmd :{
