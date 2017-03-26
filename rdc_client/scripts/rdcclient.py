@@ -19,7 +19,8 @@ from optparse import OptionParser
 import json
 import datetime
 import daemon
-import lockfile
+#import lockfile
+import daemon.pidfile
 import time
 from config import Config
 from rdcc import Modem3G
@@ -27,7 +28,6 @@ import datetime
 from datetime import datetime
 from datetime import timedelta
 
-import subprocess
 import ow
 import smtplib
 import xmlrpclib
@@ -36,7 +36,7 @@ from email.MIMEText import MIMEText
 
 from easyprocess import EasyProcess
 # third party modules
-REBOOT_CMD = EasyProcess("reboot -n -p")
+REBOOT_CMD = EasyProcess("sudo reboot -n -p")
 
 
 #----------------- Exceptions -------------------
@@ -272,8 +272,8 @@ if __name__ == '__main__':
                                action="store_true",
                                default=False)
 
-    parser.add_option ("-s", "--subprocess", dest="subprocess",
-                               help="test subprocess",
+    parser.add_option ("-c", "--check", dest="check",
+                               help="check that rdc is running if the USB 3g key is plugged",
                                action="store_true",
                                default=False)
 
@@ -300,9 +300,11 @@ if __name__ == '__main__':
     info("Debug", cfg.debug)
 
     #Unix daemon mode
+    pid_file = os.path.join(log_dir,'temperature.pid.lock')
     if options.daemon:
         with daemon.DaemonContext(working_directory='/',
-            pidfile=lockfile.FileLock(os.path.join(log_dir,'temperature.pid')),
+            pidfile=daemon.pidfile.PIDLockFile(pid_file),
+            #pidfile=lockfile.FileLock(os.path.join(log_dir,'temperature.pid')),
             stdout=file(os.path.join(log_dir,'temperature.log'),'a'),
             stderr=file(os.path.join(log_dir,'temperature.err'), 'a')):
 
@@ -353,17 +355,22 @@ if __name__ == '__main__':
                         info("Information done", cfg.debug)
                         last_info = uptime.uptime()
                 except TimeoutError, e:
-                    date = datetime.now()
-                    err_msg = "%s: %s %s\n Rebooting...\n" % (date, type(e), e)
-                    sys.stderr.write(err_msg)
-                    sys.stderr.flush()
+                    try:
+                        info("rebooting...")
+                        date = datetime.now()
+                        err_msg = "%s: Rebooting due to timeout\n" % (date)
+                        sys.stderr.write(err_msg)
+                        sys.stderr.flush()
+                    except:
+                        pass
                     time.sleep(3)
                     REBOOT_CMD.call()
                 except Exception, e:
                     date = datetime.now()
-                    err_msg = u"%s\n\n%s\n%s" % (e, date, type(e))
-                    sys.stderr.write(err_msg)
+                    #err_msg = u"%s\n\n%s\n%s" % (e, date, type(e))
+                    #sys.stderr.write(err_msg)
                     sys.stderr.flush()
+                    info("rebooting...")
                     errors.append(err_msg)
                         
                     if (uptime.uptime()-error_interval) >= last_error :
@@ -433,7 +440,29 @@ if __name__ == '__main__':
                 sys.exit(1)
         
         elif options.boot:
-                try:
-                    post_boot(cfg)
-                except:
+            try:
+                post_boot(cfg)
+            except:
+                pass
+        elif options.check:
+            def check():
+                if os.path.exists(cfg.modem.device):
                     pass
+                    #info('modem is plugged', cfg.debug)
+                else:
+                    info('modem is unplugged', cfg.debug)
+                    return True
+                if os.path.isfile(pid_file):
+                    #info('pid file exists', cfg.debug)
+                    pid = open(pid_file, 'r').read().rstrip()
+                    #info('pid: %s' % pid, cfg.debug)
+                    if os.path.exists('/proc/%s' % pid):
+                        #info('pid (%s) is running' % pid, cfg.debug)
+                        return True
+                return False
+            if not check():
+                info("retrying in 5 min", cfg.debug)
+                time.sleep(60*5)
+                if not check():
+                    info("rebooting...")
+                    os.system('sudo reboot -n -p')
