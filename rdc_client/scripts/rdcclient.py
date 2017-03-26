@@ -464,5 +464,5 @@ if __name__ == '__main__':
                 info("retrying in 5 min", cfg.debug)
                 time.sleep(60*5)
                 if not check():
-                    info("rebooting...")
+                    info("rebooting...", cfg.debug)
                     os.system('sudo reboot -n -p')
