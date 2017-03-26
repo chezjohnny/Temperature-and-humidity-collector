@@ -14,7 +14,7 @@ rdc_pid=$(pgrep -f "rdcclient.py -d")
 if [ ! $rdc_pid ]; then
 
 	if [ -e /var/run/rdc/temperature.pid.lock  ]; then
-		rm /run/log/rdc/temperature.pid.lock 
+		rm /var/run/rdc/temperature.pid.lock 
 	fi
 	logger "RDC: begin temperature collection"
 	/home/pi/.virtualenvs/rdc/bin/rdcclient.py -d /home/pi/.virtualenvs/rdc/config.yaml

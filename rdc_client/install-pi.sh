@@ -15,6 +15,6 @@ sudo cp system/pi/ppp0.service /etc/systemd/system/.
 sudo cp system/pi/10-* /lib/udev/rules.d/.
 sudo cp system/pi/wvdial.conf /etc/.
 sudo cp system/pi/options /etc/ppp/.
-sudo cp system/pi/rdcc-up /etc/ppp/ip-up.d/,
+sudo cp system/pi/rdcc-up /etc/ppp/ip-up.d/.
 sudo cp system/pi/rdcc-down /etc/ppp/ip-down.d/.
 sudo cp system/pi/rc.local /etc/. 
