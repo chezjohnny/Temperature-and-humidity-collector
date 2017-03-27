@@ -233,7 +233,7 @@ def sub_command(cmd_str, timeout=30, debug=False):
         elif cmd.return_code or cmd.oserror:
             info("Command failed due unknown error, retry!", debug)
             if n == 1:
-                raise CmdError(u"%s" % (cmd.stderr))
+                raise CmdError(u"%s" % (cmd.stderr.decode('utf-8', errors='ignore')))
             n -= 1
         else:
             break
@@ -335,7 +335,6 @@ if __name__ == '__main__':
                 except:
                     pass
                 try:
-
                     info("Try to collect data", cfg.debug)
                     info("Debug: now: %s last_temp: %s last_temp: %s" %(now, temperature_interval, last_temp), cfg.debug)
 
@@ -367,10 +366,9 @@ if __name__ == '__main__':
                     REBOOT_CMD.call()
                 except Exception, e:
                     date = datetime.now()
-                    #err_msg = u"%s\n\n%s\n%s" % (e, date, type(e))
-                    #sys.stderr.write(err_msg)
+                    err_msg = "%s\n\n%s\n%s" % (e, date, type(e))
+                    sys.stderr.write(err_msg)
                     sys.stderr.flush()
-                    info("rebooting...")
                     errors.append(err_msg)
                         
                     if (uptime.uptime()-error_interval) >= last_error :
