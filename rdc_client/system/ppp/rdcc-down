@@ -2,6 +2,6 @@
 
 if [ -e /var/log/rdc/temperature.pid.lock ]; then
 	logger "RDC: remove lock file and pkill process if needed"
-	pkill rdcclient.py
+	pkill $(cat /var/log/rdc/temperature.pid.lock)
 	rm -f /var/log/rdc/temperature.pid.lock
 fi
